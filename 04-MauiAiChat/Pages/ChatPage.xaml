@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:AiChat.Models"
+             x:Class="AiChat.Pages.ChatPage"
+             Title="AI Чат"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1A1C2C">
+
+    <ContentPage.Resources>
+        <!-- Повідомлення ШІ: аватар зліва, бульбашка вирівняна по лівому краю -->
+        <DataTemplate x:Key="AiTemplate" x:DataType="models:ChatLine">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" Padding="0,2">
+                <Image Source="avatar_ai.png" WidthRequest="48" HeightRequest="48" VerticalOptions="Start" />
+                <Border Grid.Column="1" HorizontalOptions="Start" MaximumWidthRequest="520"
+                        BackgroundColor="{Binding Bubble}" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,10">
+                    <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="{Binding Text}" LineBreakMode="WordWrap" LineHeight="1.6" />
+                        <Label Text="{Binding Time}" FontSize="8" TextColor="#94B0C2" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <!-- Повідомлення користувача: бульбашка і аватар справа -->
+        <DataTemplate x:Key="UserTemplate" x:DataType="models:ChatLine">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Padding="0,2">
+                <Border HorizontalOptions="End" MaximumWidthRequest="520"
+                        BackgroundColor="{Binding Bubble}" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,10">
+                    <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="{Binding Text}" LineBreakMode="WordWrap" LineHeight="1.6" />
+                        <Label Text="{Binding Time}" FontSize="8" TextColor="#A7F070" HorizontalOptions="End" />
+                    </VerticalStackLayout>
+                </Border>
+                <Image Grid.Column="1" Source="avatar_user.png" WidthRequest="48" HeightRequest="48" VerticalOptions="Start" />
+            </Grid>
+        </DataTemplate>
+
+        <models:ChatTemplateSelector x:Key="ChatSelector" AiTemplate="{StaticResource AiTemplate}" UserTemplate="{StaticResource UserTemplate}" />
+    </ContentPage.Resources>
+
+    <Grid>
+        <Image Source="bg_night.png" Aspect="AspectFill" />
+
+        <Grid RowDefinitions="Auto,*,Auto" Padding="16,14" RowSpacing="12" MaximumWidthRequest="860">
+
+            <!-- Шапка: заголовок, вибір моделі, очищення -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                <Label Text="AI ЧАТ" Style="{StaticResource TitleLabel}" FontSize="26" HorizontalOptions="Start" VerticalOptions="Center" />
+                <Button Grid.Column="1" x:Name="ModelButton" Text="МОДЕЛЬ" ImageSource="icon_chip.png" ContentLayout="Left,10"
+                        Style="{StaticResource PixelButton}" FontSize="9" Padding="12,8" MaximumWidthRequest="300" Clicked="OnModelClicked" />
+                <Button Grid.Column="2" Text="ОЧИСТИТИ" ImageSource="icon_trash.png" ContentLayout="Left,10"
+                        Style="{StaticResource PixelButton}" FontSize="9" Padding="12,8" Clicked="OnClearClicked" />
+            </Grid>
+
+            <!-- Розмова -->
+            <Border Grid.Row="1" BackgroundColor="#B31A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,10">
+                <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                <Grid RowDefinitions="*,Auto">
+                    <CollectionView x:Name="Messages" ItemTemplate="{StaticResource ChatSelector}" SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                    </CollectionView>
+
+                    <!-- Індикатор «ШІ думає» -->
+                    <HorizontalStackLayout Grid.Row="1" x:Name="TypingRow" IsVisible="False" Spacing="10" Margin="0,8,0,0">
+                        <Image x:Name="TypingAvatar" Source="avatar_ai.png" WidthRequest="36" HeightRequest="36" />
+                        <Label x:Name="TypingLabel" Text="ШІ ДУМАЄ" TextColor="{StaticResource Gold}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Поле вводу -->
+            <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="10" HeightRequest="58">
+                <Border BackgroundColor="#1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,0">
+                    <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                    <Entry x:Name="InputEntry" Placeholder="Напиши повідомлення..." PlaceholderColor="#566C86"
+                           TextColor="{StaticResource Paper}" FontFamily="PixelFont" FontSize="11"
+                           BackgroundColor="Transparent" VerticalOptions="Center" ReturnType="Send" Completed="OnSendClicked" />
+                </Border>
+                <Button x:Name="SendButton" Grid.Column="1" Text="НАДІСЛАТИ" ImageSource="icon_send.png" ContentLayout="Right,10"
+                        Style="{StaticResource GreenButton}" FontSize="11" Padding="18,0" Clicked="OnSendClicked" />
+            </Grid>
+        </Grid>
+
+        <!-- Вікно вибору моделі -->
+        <Grid x:Name="ModelOverlay" IsVisible="False" BackgroundColor="#B30F0F1A">
+            <Border VerticalOptions="Center" HorizontalOptions="Center" WidthRequest="520" MaximumHeightRequest="560"
+                    BackgroundColor="{StaticResource Panel}" Stroke="{StaticResource Ink}" StrokeThickness="6" Padding="20">
+                <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                <Grid RowDefinitions="Auto,*,Auto" RowSpacing="14">
+                    <Label Text="ОБЕРИ МОДЕЛЬ" Style="{StaticResource TitleLabel}" FontSize="20" />
+                    <CollectionView Grid.Row="1" x:Name="ModelList" SelectionMode="None" HeightRequest="340">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="6" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Button Text="{Binding .}" Style="{StaticResource PixelButton}" FontSize="9" Padding="10,12"
+                                        BackgroundColor="#1A1C2C" Clicked="OnModelPicked" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Button Grid.Row="2" Text="ЗАКРИТИ" Style="{StaticResource PixelButton}" Clicked="OnModelCloseClicked" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Вікно введення ключа (з'являється, якщо ключа немає) -->
+        <Grid x:Name="KeyOverlay" IsVisible="False" BackgroundColor="#E60F0F1A">
+            <Border VerticalOptions="Center" HorizontalOptions="Center" WidthRequest="520"
+                    BackgroundColor="{StaticResource Panel}" Stroke="{StaticResource Ink}" StrokeThickness="6" Padding="24">
+                <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="16">
+                    <Label Text="ПОТРІБЕН КЛЮЧ" Style="{StaticResource TitleLabel}" FontSize="20" />
+                    <Label Text="Створи безкоштовний ключ на openrouter.ai/keys і встав його сюди. Ключ зберігається лише на цьому пристрої."
+                           LineHeight="1.7" HorizontalTextAlignment="Center" />
+                    <Border BackgroundColor="#1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="12,0">
+                        <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                        <Entry x:Name="KeyEntry" IsPassword="True" Placeholder="sk-or-v1-..." PlaceholderColor="#566C86"
+                               TextColor="{StaticResource Paper}" FontFamily="PixelFont" FontSize="10" HeightRequest="50"
+                               BackgroundColor="Transparent" Completed="OnKeySaveClicked" />
+                    </Border>
+                    <Button Text="ЗБЕРЕГТИ" Style="{StaticResource GreenButton}" Clicked="OnKeySaveClicked" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>
