@@ -35,11 +35,13 @@
                 </Border>
 
                 <!-- Основні дії -->
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
-                    <Button Text="ДОСЛІДЖУВАТИ" ImageSource="loc_forest.png" ContentLayout="Top,8" Style="{StaticResource GreenButton}" HeightRequest="120" Clicked="OnExploreClicked" />
-                    <Button Grid.Column="1" Text="ІНВЕНТАР" ImageSource="res_wood.png" ContentLayout="Top,8" Style="{StaticResource PixelButton}" HeightRequest="120" Clicked="OnInventoryClicked" />
-                    <Button Grid.Row="1" Text="СПАТИ" ImageSource="icon_sleep.png" ContentLayout="Top,8" Style="{StaticResource PixelButton}" HeightRequest="120" Clicked="OnSleepClicked" />
-                    <Button Grid.Row="1" Grid.Column="1" Text="ПОЇСТИ" ImageSource="stat_food.png" ContentLayout="Top,8" Style="{StaticResource PixelButton}" HeightRequest="120" Clicked="OnEatClicked" />
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                    <Button Text="ДОСЛІДЖУВАТИ" ImageSource="loc_forest.png" ContentLayout="Top,8" Style="{StaticResource GreenButton}" HeightRequest="110" Clicked="OnExploreClicked" />
+                    <Button Grid.Column="1" Text="ІНВЕНТАР" ImageSource="res_wood.png" ContentLayout="Top,8" Style="{StaticResource PixelButton}" HeightRequest="110" Clicked="OnInventoryClicked" />
+                    <Button Grid.Row="1" Text="ПРОКАЧКА" ImageSource="tool_sword.png" ContentLayout="Top,8" Style="{StaticResource PixelButton}" HeightRequest="110" Clicked="OnUpgradeClicked" />
+                    <Button Grid.Row="1" Grid.Column="1" Text="СПАТИ" ImageSource="icon_sleep.png" ContentLayout="Top,8" Style="{StaticResource PixelButton}" HeightRequest="110" Clicked="OnSleepClicked" />
+                    <Button Grid.Row="2" Text="ПОЇСТИ" ImageSource="stat_food.png" ContentLayout="Top,8" Style="{StaticResource PixelButton}" HeightRequest="110" Clicked="OnEatClicked" />
+                    <Button Grid.Row="2" Grid.Column="1" Text="ПОПИТИ" ImageSource="stat_thirst.png" ContentLayout="Top,8" Style="{StaticResource PixelButton}" HeightRequest="110" Clicked="OnDrinkClicked" />
                 </Grid>
 
                 <Button Text="В МЕНЮ" Style="{StaticResource PixelButton}" BackgroundColor="{StaticResource Red}" Clicked="OnMenuClicked" />

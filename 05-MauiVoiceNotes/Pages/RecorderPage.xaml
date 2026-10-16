@@ -61,7 +61,17 @@
                                                 BackgroundColor="{StaticResource Red}" WidthRequest="64" HeightRequest="52" Padding="0" Clicked="OnDeleteClicked" />
                                     </Grid>
 
-                                    <Label Text="ШІ СЛУХАЄ ЗАПИС..." IsVisible="{Binding IsBusy}" TextColor="{StaticResource Gold}" FontSize="10" />
+                                    <!-- Текст запису: можна вписати вручну і отримати тези без звуку -->
+                                    <Border BackgroundColor="#1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="3" Padding="10,2">
+                                        <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                                        <Editor Text="{Binding Transcript}" Placeholder="Текст запису (впиши або встав), потім натисни ТЕЗИ" PlaceholderColor="#566C86"
+                                                TextColor="{StaticResource Paper}" FontFamily="PixelFont" FontSize="10" AutoSize="TextChanges"
+                                                MinimumHeightRequest="44" BackgroundColor="Transparent" />
+                                    </Border>
+                                    <Button Text="ТЕЗИ З ТЕКСТУ" Style="{StaticResource GreenButton}" FontSize="10" HeightRequest="44" Padding="12,0"
+                                            HorizontalOptions="Start" IsEnabled="{Binding CanSend}" Clicked="OnSummarizeClicked" />
+
+                                    <Label Text="ШІ ПРАЦЮЄ..." IsVisible="{Binding IsBusy}" TextColor="{StaticResource Gold}" FontSize="10" />
 
                                     <Border IsVisible="{Binding HasAiText}" BackgroundColor="#1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="3" Padding="12,10">
                                         <Border.StrokeShape><Rectangle /></Border.StrokeShape>

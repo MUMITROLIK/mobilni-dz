@@ -7,6 +7,7 @@ public partial class HudBar : ContentView
     private readonly PixelBar _xp = new(30, 8);
     private readonly PixelBar _health = new();
     private readonly PixelBar _hunger = new();
+    private readonly PixelBar _thirst = new();
     private readonly PixelBar _energy = new();
     private readonly PixelBar _task = new(30, 10);
     private readonly PixelBar[] _bars;
@@ -20,19 +21,21 @@ public partial class HudBar : ContentView
     public HudBar()
     {
         InitializeComponent();
-        _bars = new[] { _xp, _health, _hunger, _energy, _task };
+        _bars = new[] { _xp, _health, _hunger, _thirst, _energy, _task };
 
         XpRow.Content = _xp;
         TaskBarRow.Content = _task;
         BarsGrid.Add(_health, 1, 0);
         BarsGrid.Add(_hunger, 1, 1);
-        BarsGrid.Add(_energy, 1, 2);
+        BarsGrid.Add(_thirst, 1, 2);
+        BarsGrid.Add(_energy, 1, 3);
 
         // Підписуємось на зміни гри, поки панель на екрані, і відписуємось, коли вона зникла
         Loaded += (_, _) =>
         {
             GameState.Current.Changed += Refresh;
             GameState.Current.Message += ShowMessage;
+            GameState.Current.AutoSaved += OnAutoSaved;
             Refresh();
 
             // Окремий таймер ~60 разів на секунду плавно «доганяє» смугами цільові значення,
@@ -45,12 +48,14 @@ public partial class HudBar : ContentView
             _alarm = new CancellationTokenSource();
             _ = AlarmAsync(HealthIcon, () => GameState.Current.Health < 25, _alarm.Token);
             _ = AlarmAsync(HungerIcon, () => GameState.Current.Hunger < 25, _alarm.Token);
+            _ = AlarmAsync(ThirstIcon, () => GameState.Current.Thirst < 25, _alarm.Token);
             _ = AlarmAsync(EnergyIcon, () => GameState.Current.Energy < 15, _alarm.Token);
         };
         Unloaded += (_, _) =>
         {
             GameState.Current.Changed -= Refresh;
             GameState.Current.Message -= ShowMessage;
+            GameState.Current.AutoSaved -= OnAutoSaved;
             _frameTimer?.Stop();
             _alarm?.Cancel();
         };
@@ -66,9 +71,11 @@ public partial class HudBar : ContentView
 
         _health.Set(g.Health, 100, Color.FromArgb("#B13E53"));
         _hunger.Set(g.Hunger, 100, Color.FromArgb("#EF7D57"));
+        _thirst.Set(g.Thirst, 100, Color.FromArgb("#41A6F6"));
         _energy.Set(g.Energy, 100, Color.FromArgb("#FFCD75"));
         HealthLabel.Text = ((int)Math.Ceiling(g.Health)).ToString();
         HungerLabel.Text = ((int)Math.Ceiling(g.Hunger)).ToString();
+        ThirstLabel.Text = ((int)Math.Ceiling(g.Thirst)).ToString();
         EnergyLabel.Text = ((int)Math.Ceiling(g.Energy)).ToString();
 
         if (g.Task is { } task)
@@ -76,6 +83,12 @@ public partial class HudBar : ContentView
             ShowTaskBox();
             TaskLabel.Text = $"{task.Action.Name}  {Math.Max(0, (int)Math.Ceiling(task.Remaining))} С";
             _task.Set(task.Progress, 1, Color.FromArgb("#38B764"));
+        }
+        else if (g.Fight is { } fight)
+        {
+            ShowTaskBox();
+            TaskLabel.Text = $"БІЙ: {fight.Enemy.Name}  {(int)Math.Ceiling(fight.EnemyHp)}/{fight.Enemy.Hp}";
+            _task.Set(fight.EnemyHp, fight.Enemy.Hp, Color.FromArgb("#B13E53"));
         }
         else if (g.IsSleeping)
         {
@@ -88,6 +101,14 @@ public partial class HudBar : ContentView
             _task.Set(1, 1, Color.FromArgb("#38B764"));   // доїжджає до кінця, потім панель ховається
             HideTaskBox();
         }
+    }
+
+    /// <summary>Автозбереження: напис «ЗБЕРЕЖЕНО» на мить спалахує і гасне.</summary>
+    private async void OnAutoSaved()
+    {
+        await SaveLabel.FadeTo(1, 150);
+        await Task.Delay(900);
+        await SaveLabel.FadeTo(0, 500);
     }
 
     // Панель завдання плавно висувається і ховається
@@ -103,7 +124,7 @@ public partial class HudBar : ContentView
     {
         await TaskBox.FadeTo(0, 350);
         var g = GameState.Current;
-        if (g.Task is null && !g.IsSleeping) TaskBox.IsVisible = false;
+        if (g.Task is null && g.Fight is null && !g.IsSleeping) TaskBox.IsVisible = false;
     }
 
     /// <summary>Коротке повідомлення виринає, трохи висить і плавно зникає. Нова характеристика «підстрибує».</summary>

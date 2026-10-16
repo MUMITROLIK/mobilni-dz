@@ -80,18 +80,38 @@ public partial class HomePage : ContentPage
         var g = GameState.Current;
         StatusLabel.Text =
             g.Hunger < 25 ? "Ти дуже голодний! Поїж, поки не втратив здоров'я." :
+            g.Thirst < 25 ? "Мучить спрага! Набери води або зріж кактус." :
+            g.SkillPoints > 0 ? $"Є очки навичок: {g.SkillPoints}. Вклади їх у «Прокачці»." :
             g.Energy < 20 ? "Сил майже нема. Відпочинь або поспи." :
             g.IsSleeping ? "Ти спиш і відновлюєш сили..." :
             g.Task is not null ? "Герой зайнятий збором ресурсів." :
             "Усе добре. Вирушай на розвідку.";
 
         ToolsRow.Clear();
-        foreach (var tool in Catalog.Tools.Where(t => g.Tools.Contains(t.Id)))
-            ToolsRow.Add(new Image { Source = tool.Icon, WidthRequest = 36, HeightRequest = 36 });
+        foreach (var tool in Catalog.Tools.Where(t => g.HasTool(t.Id)))
+        {
+            var cell = new VerticalStackLayout { Spacing = 2, HorizontalOptions = LayoutOptions.Center };
+            cell.Add(new Image { Source = tool.Icon, WidthRequest = 36, HeightRequest = 36 });
+            cell.Add(new Label { Text = $"Р{g.LevelOf(tool.Id)}", FontSize = 8, TextColor = Color.FromArgb("#FFCD75"), HorizontalTextAlignment = TextAlignment.Center });
+            ToolsRow.Add(cell);
+        }
     }
 
     private async void OnExploreClicked(object? sender, EventArgs e) => await Shell.Current.GoToAsync(nameof(LocationsPage));
     private async void OnInventoryClicked(object? sender, EventArgs e) => await Shell.Current.GoToAsync(nameof(InventoryPage));
+
+    private async void OnUpgradeClicked(object? sender, EventArgs e) => await Shell.Current.GoToAsync(nameof(UpgradePage));
+
+    /// <summary>П'ємо найслабше питво з наявного (кактус, лід, потім чиста вода).</summary>
+    private async void OnDrinkClicked(object? sender, EventArgs e)
+    {
+        var g = GameState.Current;
+        var drink = Catalog.Items.Where(i => i.DrinkValue > 0 && g.Count(i.Id) > 0).OrderBy(i => i.DrinkValue).FirstOrDefault();
+
+        if (drink is null) await UiHelpers.ToastAsync(ToastLabel, "НЕМАЄ ВОДИ. НАБЕРИ В ЛІСІ АБО ЗРІЖ КАКТУС");
+        else if (!g.Drink(drink.Id)) await UiHelpers.ToastAsync(ToastLabel, "ТИ ВЖЕ НАПИВСЯ");
+        else await UiHelpers.ToastAsync(ToastLabel, $"ВИПИТО: {drink.Name}");
+    }
 
     private async void OnSleepClicked(object? sender, EventArgs e)
     {

@@ -97,6 +97,46 @@ public class AiService
         return string.IsNullOrWhiteSpace(text) ? "(порожня відповідь)" : text.Trim();
     }
 
+
+    /// <summary>Модель для звичайного тексту: сама обирає вільну безкоштовну модель (як у чаті з попереднього завдання).</summary>
+    public const string TextModel = "openrouter/free";
+
+    /// <summary>
+    /// Робить із тексту запису тези: короткий список головних думок. Це запасний шлях без звуку:
+    /// працює навіть тоді, коли безкоштовна модель, що слухає звук, недоступна.
+    /// </summary>
+    public async Task<string> SummarizeTextAsync(string text)
+    {
+        if (!HasKey) throw new InvalidOperationException("Немає ключа API.");
+
+        var request = new
+        {
+            model = TextModel,
+            messages = new[]
+            {
+                new { role = "system", content = "Ти допомагаєш конспектувати. Відповідай українською." },
+                new { role = "user", content =
+                    "Ось текст голосової нотатки. Зроби з нього тези: 3-6 коротких пунктів, кожен з нового рядка і з тире на початку. " +
+                    "Без вступу і висновків, лише головні думки.\n\n" + text },
+            },
+        };
+
+        using var message = new HttpRequestMessage(HttpMethod.Post, $"{Endpoint}/chat/completions")
+        {
+            Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json"),
+        };
+        message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", ApiKey);
+
+        using var response = await Http.SendAsync(message);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            throw new HttpRequestException(DescribeStatus((int)response.StatusCode, body));
+
+        using var doc = JsonDocument.Parse(body);
+        var answer = doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
+        return string.IsNullOrWhiteSpace(answer) ? "(порожня відповідь)" : answer.Trim();
+    }
+
     private static string DescribeStatus(int status, string body) => status switch
     {
         401 => "Ключ не підійшов. Перевір ключ OpenRouter.",

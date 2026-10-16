@@ -45,7 +45,9 @@ public partial class ScenePage : ContentPage
     };
 
     private bool IsSleepScene => Mode == "sleep";
+    private bool IsFightScene => Mode == "fight";
 
+    private Enemy? _enemy;
     private Place _place = Catalog.Locations[0];
     private GatherAction _action = Catalog.Locations[0].Actions[0];
     private TargetStyle _target = Targets["wood"];
@@ -69,6 +71,7 @@ public partial class ScenePage : ContentPage
     {
         base.OnAppearing();
         GameState.Current.Changed += OnChanged;
+        GameState.Current.FightHit += OnFightHit;
 
         _frameTimer = Dispatcher.CreateTimer();
         _frameTimer.Interval = TimeSpan.FromMilliseconds(16);
@@ -83,6 +86,7 @@ public partial class ScenePage : ContentPage
     {
         base.OnDisappearing();
         GameState.Current.Changed -= OnChanged;
+        GameState.Current.FightHit -= OnFightHit;
         _frameTimer?.Stop();
         _loops?.Cancel();
     }
@@ -102,6 +106,17 @@ public partial class ScenePage : ContentPage
             if (!g.IsSleeping && !g.Sleep()) { _ = LeaveAsync(); return; }
             SceneTitle.Text = "ВІДПОЧИВАЄМО";
         }
+        else if (IsFightScene)
+        {
+            _place = Catalog.LocationById(PlaceId);
+            _enemy = Catalog.Enemies[_place.Id];
+            _style = Places[_place.Id];
+            _target = new TargetStyle(_enemy.Image, null, new[] { "#B13E53", "#F4F4F4", "#FFCD75" }, $"БІЙ: {_enemy.Name}", false);
+
+            // Якщо ми повернулися на сцену під час бою, що йде, просто продовжуємо
+            if (g.Fight?.Enemy != _enemy && !g.StartFight(_place)) { _ = LeaveAsync(); return; }
+            SceneTitle.Text = _target.Verb;
+        }
         else
         {
             _place = Catalog.LocationById(PlaceId);
@@ -115,13 +130,16 @@ public partial class ScenePage : ContentPage
         }
 
         _active = true;
+        CancelButton.Text = IsFightScene ? "ВТЕКТИ" : "ПЕРЕРВАТИ";
         ApplyStyle();
         ResetVisuals();
 
         var token = _loops.Token;
-        if (!IsSleepScene) _ = CritterAsync(token);
+        if (!IsSleepScene && !IsFightScene) _ = CritterAsync(token);
         _ = AmbientAsync(token);
-        _ = IsSleepScene ? SleepLoopAsync(token) : WorkLoopAsync(token);
+        if (IsSleepScene) _ = SleepLoopAsync(token);
+        else if (IsFightScene) _ = EnemyIdleAsync(token);
+        else _ = WorkLoopAsync(token);
         OnChanged();
     }
 
@@ -159,6 +177,16 @@ public partial class ScenePage : ContentPage
             ToolImage.IsVisible = false;
             HeroImage.Source = "hero_blink_big.png";
         }
+        else if (IsFightScene)
+        {
+            TargetImage.Source = _target.Image;
+            TargetImage.WidthRequest = TargetImage.HeightRequest = 140;
+            // У руках найкраща зброя героя; без зброї б'ємося кулаками
+            var weapon = GameState.Current.BestWeapon;
+            ToolImage.Source = weapon is null ? null : "big_" + weapon.Icon;
+            ToolImage.IsVisible = weapon is not null;
+            HeroImage.Source = "hero_big.png";
+        }
         else
         {
             TargetImage.Source = _target.Image;
@@ -184,7 +212,9 @@ public partial class ScenePage : ContentPage
         HeroCell.TranslationX = HeroCell.TranslationY = 0;
         HeroCell.Rotation = 0;
         ToolImage.Rotation = 0;
-        ToolImage.IsVisible = false;   // на панелі результату інструмент зайвий
+        HeroImage.TranslationX = 0;
+        TargetCell.TranslationX = 0;
+        Flash.Color = Colors.White;
         FxLayer.Clear();
         _progress.Set(0, 1, Color.FromArgb("#38B764"));
     }
@@ -201,6 +231,15 @@ public partial class ScenePage : ContentPage
             ProgressLabel.Text = $"СПИМО...  {(int)Math.Ceiling(g.SleepRemaining)} С";
             _progress.Set(1 - g.SleepRemaining / GameState.SleepSeconds, 1, Color.FromArgb("#41A6F6"));
             if (!g.IsSleeping) _ = FinishAsync();
+        }
+        else if (IsFightScene)
+        {
+            if (g.Fight is { } fight)
+            {
+                ProgressLabel.Text = $"{_enemy!.Name}: {(int)Math.Ceiling(fight.EnemyHp)}/{_enemy.Hp}   ·   УДАР: {g.Damage}";
+                _progress.Set(fight.EnemyHp, _enemy.Hp, Color.FromArgb("#B13E53"));
+            }
+            else _ = FinishAsync();
         }
         else if (g.Task is { } task && task.Action == _action)
         {
@@ -225,6 +264,8 @@ public partial class ScenePage : ContentPage
         _progress.Set(1, 1, Color.FromArgb("#38B764"));
         HeroCell.TranslationX = HeroCell.TranslationY = 0;
         ToolImage.Rotation = 0;
+        ToolImage.IsVisible = false;   // на панелі результату інструмент зайвий
+        var chest = !IsSleepScene;     // сундук з нагородою є скрізь, крім сну і поразки в бою
 
         if (IsSleepScene)
         {
@@ -235,6 +276,37 @@ public partial class ScenePage : ContentPage
             HeroImage.Source = "hero_big.png";
             AgainButton.Text = "СПАТИ ЩЕ";
             AgainButton.IsEnabled = g.Energy < 99;
+        }
+        else if (IsFightScene)
+        {
+            if (g.LastFight is not { } fight)
+            {
+                await LeaveAsync();    // втекли з бою: підсумків немає
+                return;
+            }
+
+            if (fight.Won)
+            {
+                // Ворог розсипається, а з сундука вилітає здобич
+                SpawnChips(16, 1.2);
+                await Task.WhenAll(TargetImage.ScaleTo(0.2, 420, Easing.CubicIn), TargetImage.FadeTo(0, 420), TargetImage.RotateTo(180, 420, Easing.CubicIn));
+                var loot = Catalog.ItemById(fight.LootItemId);
+                ResultTitle.Text = "ПЕРЕМОГА!";
+                ResultIcon.Source = loot.Icon;
+                ResultAmount.Text = $"+{fight.LootAmount} {loot.Name}";
+                ResultInfo.Text = $"ДОСВІД +{fight.Xp}" + (fight.LeveledUp ? $"\nНОВИЙ РІВЕНЬ: {g.Level}! +1 ОЧКО НАВИЧОК" : "");
+            }
+            else
+            {
+                chest = false;
+                ResultTitle.Text = "ПОРАЗКА";
+                ResultIcon.Source = "stat_health.png";
+                ResultAmount.Text = "ТИ ВПАВ БЕЗ СИЛ";
+                ResultInfo.Text = "Втрачено половину ресурсів.\nПокращ зброю і вкладай очки в силу.";
+            }
+            AgainButton.Text = "ЩЕ БІЙ";
+            AgainButton.IsEnabled = g.CanFight;
+            AgainButton.Opacity = AgainButton.IsEnabled ? 1 : 0.5;
         }
         else
         {
@@ -268,12 +340,12 @@ public partial class ScenePage : ContentPage
         }
 
         // Панель результату виринає з пружинним ефектом
-        ResultChest.IsVisible = !IsSleepScene;
+        ResultChest.IsVisible = chest;
         ResultChest.Source = "k_chest_closed.png";
         ResultChest.Rotation = 0;
-        ResultIcon.Opacity = IsSleepScene ? 1 : 0;
+        ResultIcon.Opacity = chest ? 0 : 1;
         ResultIcon.TranslationY = 0;
-        ResultIcon.VerticalOptions = IsSleepScene ? LayoutOptions.Center : LayoutOptions.Start;
+        ResultIcon.VerticalOptions = chest ? LayoutOptions.Start : LayoutOptions.Center;
         ResultPanel.Scale = 0.6;
         ResultPanel.Opacity = 0;
         ResultPanel.IsVisible = true;
@@ -282,7 +354,7 @@ public partial class ScenePage : ContentPage
         await ResultPanel.ScaleTo(1, 130, Easing.CubicIn);
 
         // Сундук трясеться, відкривається, і з нього вистрибує нагорода
-        if (!IsSleepScene)
+        if (chest)
         {
             for (var i = 0; i < 3; i++) { await ResultChest.RotateTo(-7, 60); await ResultChest.RotateTo(7, 60); }
             await ResultChest.RotateTo(0, 60);
@@ -373,6 +445,64 @@ public partial class ScenePage : ContentPage
             });
             animation.Commit(this, $"chip{chip.GetHashCode()}", 16, (uint)(duration * 1000), Easing.Linear, (_, _) => FxLayer.Remove(chip));
         }
+    }
+
+    // ================= Анімація бою =================
+
+    /// <summary>Ворог «дихає»: злегка погойдується, поки чекає свого удару.</summary>
+    private async Task EnemyIdleAsync(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            await TargetImage.ScaleYTo(1.06, 450, Easing.SinInOut);
+            await TargetImage.ScaleYTo(0.97, 450, Easing.SinInOut);
+        }
+    }
+
+    /// <summary>Гра повідомила про удар: показуємо відповідну анімацію.</summary>
+    private void OnFightHit(bool byHero, int damage, bool crit)
+    {
+        if (!_active || !IsFightScene) return;
+        _ = byHero ? HeroStrikeAsync(damage, crit) : EnemyStrikeAsync(damage);
+    }
+
+    /// <summary>Герой замахується, кидається вперед; ворог трясеться, над ним летить число шкоди.</summary>
+    private async Task HeroStrikeAsync(int damage, bool crit)
+    {
+        HeroImage.Source = "hero_work_big.png";
+        await Task.WhenAll(ToolImage.RotateTo(-55, 90, Easing.CubicOut), HeroCell.TranslateTo(-6, -10, 90, Easing.CubicOut));
+        await Task.WhenAll(ToolImage.RotateTo(40, 80, Easing.CubicIn), HeroCell.TranslateTo(80, 0, 80, Easing.CubicIn));
+
+        // Момент влучання
+        Flash.Color = crit ? Color.FromArgb("#FFCD75") : Colors.White;
+        _ = Flash.FadeTo(crit ? 0.45 : 0.25, 35).ContinueWith(_ => { });
+        SpawnChips(crit ? 12 : 6, crit ? 1.1 : 0.8);
+        var x = TargetCell.X + TargetCell.Width / 2 - 24;
+        var y = TargetCell.Y + TargetCell.Height * 0.2;
+        _ = Fx.FloatTextAsync(FxLayer, crit ? $"-{damage}!" : $"-{damage}", Color.FromArgb(crit ? "#FFCD75" : "#F4F4F4"), x, y, 90, 900);
+
+        _ = TargetImage.TranslateTo(16, 0, 50, Easing.CubicOut);
+        _ = Flash.FadeTo(0, 130);
+        HeroImage.Source = "hero_big.png";
+        await Task.WhenAll(ToolImage.RotateTo(0, 180, Easing.CubicOut), HeroCell.TranslateTo(0, 0, 220, Easing.CubicOut));
+        await TargetImage.TranslateTo(0, 0, 100, Easing.CubicOut);
+    }
+
+    /// <summary>Ворог кидається на героя; герой здригається, спалах червоним, над ним летить шкода.</summary>
+    private async Task EnemyStrikeAsync(int damage)
+    {
+        await TargetCell.TranslateTo(-90, 0, 90, Easing.CubicIn);
+
+        Flash.Color = Color.FromArgb("#B13E53");
+        _ = Flash.FadeTo(0.4, 35).ContinueWith(_ => { });
+        var x = HeroCell.X + HeroCell.Width / 2 - 20;
+        var y = HeroCell.Y + HeroCell.Height * 0.15;
+        _ = Fx.FloatTextAsync(FxLayer, $"-{damage}", Color.FromArgb("#B13E53"), x, y, 90, 900);
+
+        _ = HeroImage.TranslateTo(-14, 0, 50, Easing.CubicOut);
+        _ = Flash.FadeTo(0, 160);
+        await TargetCell.TranslateTo(0, 0, 220, Easing.CubicOut);
+        await HeroImage.TranslateTo(0, 0, 100, Easing.CubicOut);
     }
 
     // ================= Анімація сну =================
@@ -526,7 +656,9 @@ public partial class ScenePage : ContentPage
     {
         _active = false;
         _loops?.Cancel();
-        if (IsSleepScene) GameState.Current.WakeUp(); else GameState.Current.CancelTask();
+        if (IsSleepScene) GameState.Current.WakeUp();
+        else if (IsFightScene) GameState.Current.Flee();
+        else GameState.Current.CancelTask();
         _ = LeaveAsync();
     }
 

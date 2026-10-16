@@ -17,10 +17,6 @@
                 <Label Text="ІНВЕНТАР" Style="{StaticResource TitleLabel}" FontSize="22" HorizontalOptions="Start" />
                 <VerticalStackLayout x:Name="ItemsLayout" Spacing="8" />
 
-                <Label Text="КРАФТ" Style="{StaticResource TitleLabel}" FontSize="22" HorizontalOptions="Start" Margin="0,8,0,0" />
-                <Label Text="Інструменти додають +1 до видобутку певних ресурсів." FontSize="9" TextColor="#94B0C2" />
-                <VerticalStackLayout x:Name="ToolsLayout" Spacing="10" />
-
                 <Button Text="НАЗАД" Style="{StaticResource PixelButton}" Clicked="OnBackClicked" />
             </VerticalStackLayout>
         </ScrollView>

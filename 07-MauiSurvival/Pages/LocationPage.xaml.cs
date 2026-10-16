@@ -110,7 +110,29 @@ public partial class LocationPage : ContentPage
             ActionsLayout.Add(UiHelpers.Card(grid, padding: 14));
             _rows.Add(new Row(action, button, info));
         }
+
+        // Картка бою: у кожній локації живе свій ворог
+        var enemy = Catalog.Enemies[_location.Id];
+        _fightInfo = new Label { FontSize = 9, LineHeight = 1.6, LineBreakMode = LineBreakMode.WordWrap };
+        _fightButton = UiHelpers.PixelButton("В БІЙ", async (_, _) => await Shell.Current.GoToAsync($"{nameof(ScenePage)}?place={_location.Id}&mode=fight"), "PixelButton", 11);
+        _fightButton.BackgroundColor = UiHelpers.Res("Red");
+        _fightButton.HeightRequest = 52;
+        _fightButton.WidthRequest = 140;
+
+        var fightGrid = new Grid { ColumnDefinitions = { new ColumnDefinition(56), new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) }, ColumnSpacing = 14 };
+        fightGrid.Add(new Image { Source = enemy.Image, WidthRequest = 48, HeightRequest = 48, VerticalOptions = LayoutOptions.Center });
+        fightGrid.Add(new VerticalStackLayout
+        {
+            Spacing = 6,
+            VerticalOptions = LayoutOptions.Center,
+            Children = { new Label { Text = $"БІЙ: {enemy.Name}", FontSize = 12, TextColor = UiHelpers.Res("Red") }, _fightInfo },
+        }, 1);
+        fightGrid.Add(_fightButton, 2);
+        ActionsLayout.Add(UiHelpers.Card(fightGrid, padding: 14));
     }
+
+    private Label? _fightInfo;
+    private Button? _fightButton;
 
     /// <summary>Оновлює підписи і доступність кнопок: активна дія, нестача енергії, зайнятий герой.</summary>
     private void Refresh()
@@ -118,7 +140,7 @@ public partial class LocationPage : ContentPage
         var g = GameState.Current;
         foreach (var (action, button, info) in _rows)
         {
-            var bonus = g.Tools.Any(t => Catalog.ToolById(t).BoostedItems.Contains(action.ItemId)) ? 1 : 0;
+            var bonus = g.YieldBonus(action.ItemId);
             var item = Catalog.ItemById(action.ItemId);
             var yield = $"+{action.MinYield + bonus}-{action.MaxYield + bonus} {item.Name}";
             var active = g.Task?.Action == action;
@@ -132,6 +154,22 @@ public partial class LocationPage : ContentPage
             button.Text = active ? "ДИВИТИСЬ" : "ПОЧАТИ";
             button.IsEnabled = g.CanStart(action) || active;
             button.Opacity = button.IsEnabled || active ? 1 : 0.5;
+        }
+
+        if (_fightInfo is not null && _fightButton is not null)
+        {
+            var enemy = Catalog.Enemies[_location.Id];
+            var loot = Catalog.ItemById(enemy.LootItemId);
+            var fighting = g.Fight?.Enemy == enemy;
+            var status =
+                fighting ? "ЙДЕ БІЙ..." :
+                g.IsBusy ? "ГЕРОЙ ЗАЙНЯТИЙ" :
+                g.Energy < GameState.FightEnergyCost ? "НЕ ВИСТАЧАЄ ЕНЕРГІЇ" :
+                g.Health <= 20 ? "ЗАНАДТО СЛАБКИЙ ДЛЯ БОЮ" : "ГОТОВО";
+            _fightInfo.Text = $"ЕНЕРГІЯ -{GameState.FightEnergyCost}  ·  ВОРОГ {enemy.Hp} HP, УДАР {enemy.Damage}  ·  ТВІЙ УДАР {g.Damage}\nЗДОБИЧ: {enemy.LootMin}-{enemy.LootMax} {loot.Name}, ДОСВІД +{enemy.Xp}\n{status}";
+            _fightButton.Text = fighting ? "ДИВИТИСЬ" : "В БІЙ";
+            _fightButton.IsEnabled = g.CanFight || fighting;
+            _fightButton.Opacity = _fightButton.IsEnabled ? 1 : 0.5;
         }
     }
 

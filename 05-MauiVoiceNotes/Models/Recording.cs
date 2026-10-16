@@ -32,6 +32,9 @@ public class Recording : INotifyPropertyChanged
     }
     public bool CanSend => !IsBusy;
 
+    /// <summary>Текст запису: його можна вписати чи вставити вручну (наприклад, якщо модель зі звуком недоступна) і попросити ШІ скласти тези.</summary>
+    public string Transcript { get; set; } = "";
+
     private string _aiText = "";
     public string AiText
     {

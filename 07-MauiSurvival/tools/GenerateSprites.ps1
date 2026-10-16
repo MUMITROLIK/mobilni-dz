@@ -132,6 +132,22 @@ for ($y = 1; $y -le 14; $y++) {
 }
 Save-Scaled $play 'icon_play' 2
 
+# Вода, м'ясо, спрага, нова зброя (спис і меч)
+New-Sprite @(
+    '.....kk.....', '....kbbk....', '....kbbk....', '...kbwbbk...', '..kbwbbbbk..', '.kbwbbbbbbk.', '.kbbbbbbbbk.', '.kbbbbbbbek.', '..kbbbbbek..', '...kkeeekk..', '....kkkk....') 'res_water' 12 4
+
+New-Sprite @(
+    '...kkkkkk...', '..knnnnnnk..', '.knnrrnnnnk.', '.knnrrnnnnk.', '.knnnnnnnnk.', '..knnnnnnk..', '...kkwwkk...', '.....kwwk...', '......kwwk..', '.......kk...') 'res_meat' 12 4
+
+New-Sprite @(
+    '.....kk.....', '....kbbk....', '....kbbk....', '...kbwbbk...', '..kbwbbbbk..', '.kbwbbbbbbk.', '.kbbbbbbbbk.', '.kbbbbbbbek.', '..kbbbbbek..', '...kkeeekk..', '....kkkk....') 'stat_thirst' 12 3
+
+New-Sprite @(
+    '.........kk.', '........kssk', '.......kssk.', '......kssk..', '.....kssk...', '....kssk....', '...knk......', '..knk.......', '.knk........', 'knk.........', 'kk..........') 'tool_spear' 12 4
+
+New-Sprite @(
+    '..........kk', '.........ksk', '........ksk.', '.......ksk..', '......ksk...', '.k...ksk....', '.kk.ksk.....', '..kkyk......', '..knyk......', '.knk.kk.....', 'knk.........') 'tool_sword' 12 4
+
 # Герой: кадри анімації (моргання і робота руками вгору), 12x12 -> 96x96
 New-Sprite @(
     '....kkkk....', '...kyyyyk...', '..kyyyyyyk..', '..kwwwwwwk..', '..kwwwwwwk..', '...kkrrkk...', '..kkggggkk..', '.kkgggggkkk.', '.kwkggggkwk.', '...kggggk...', '...kk..kk...', '..kkk..kkk..') 'hero_blink' 12 8

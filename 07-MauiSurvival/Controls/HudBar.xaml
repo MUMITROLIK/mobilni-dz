@@ -10,19 +10,25 @@
 
             <Grid ColumnDefinitions="*,Auto">
                 <Label x:Name="LevelLabel" Text="РІВЕНЬ 1" TextColor="{StaticResource Gold}" FontSize="12" />
-                <Label Grid.Column="1" x:Name="DayLabel" Text="ДЕНЬ 1" FontSize="10" TextColor="#94B0C2" />
+                <HorizontalStackLayout Grid.Column="1" Spacing="10">
+                    <Label x:Name="SaveLabel" Text="ЗБЕРЕЖЕНО" FontSize="8" TextColor="#A7F070" Opacity="0" VerticalOptions="Center" />
+                    <Label x:Name="DayLabel" Text="ДЕНЬ 1" FontSize="10" TextColor="#94B0C2" VerticalOptions="Center" />
+                </HorizontalStackLayout>
             </Grid>
             <ContentView x:Name="XpRow" />
 
-            <Grid x:Name="BarsGrid" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="6">
+            <Grid x:Name="BarsGrid" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="6">
                 <Image x:Name="HealthIcon" Source="stat_health.png" WidthRequest="30" HeightRequest="30" />
                 <Label Grid.Column="2" x:Name="HealthLabel" Text="100" FontSize="10" VerticalOptions="Center" WidthRequest="44" HorizontalTextAlignment="End" />
 
                 <Image x:Name="HungerIcon" Grid.Row="1" Source="stat_food.png" WidthRequest="30" HeightRequest="30" />
                 <Label Grid.Row="1" Grid.Column="2" x:Name="HungerLabel" Text="100" FontSize="10" VerticalOptions="Center" WidthRequest="44" HorizontalTextAlignment="End" />
 
-                <Image x:Name="EnergyIcon" Grid.Row="2" Source="stat_energy.png" WidthRequest="30" HeightRequest="30" />
-                <Label Grid.Row="2" Grid.Column="2" x:Name="EnergyLabel" Text="100" FontSize="10" VerticalOptions="Center" WidthRequest="44" HorizontalTextAlignment="End" />
+                <Image x:Name="ThirstIcon" Grid.Row="2" Source="stat_thirst.png" WidthRequest="30" HeightRequest="30" />
+                <Label Grid.Row="2" Grid.Column="2" x:Name="ThirstLabel" Text="100" FontSize="10" VerticalOptions="Center" WidthRequest="44" HorizontalTextAlignment="End" />
+
+                <Image x:Name="EnergyIcon" Grid.Row="3" Source="stat_energy.png" WidthRequest="30" HeightRequest="30" />
+                <Label Grid.Row="3" Grid.Column="2" x:Name="EnergyLabel" Text="100" FontSize="10" VerticalOptions="Center" WidthRequest="44" HorizontalTextAlignment="End" />
             </Grid>
 
             <!-- Що робимо зараз: збір ресурсу або сон -->

@@ -77,7 +77,7 @@
                 <ContentView x:Name="ProgressHolder" />
 
                 <Grid x:Name="WorkButtons" ColumnDefinitions="*">
-                    <Button Text="ПЕРЕРВАТИ" Style="{StaticResource PixelButton}" BackgroundColor="{StaticResource Red}" Clicked="OnCancelClicked" />
+                    <Button x:Name="CancelButton" Text="ПЕРЕРВАТИ" Style="{StaticResource PixelButton}" BackgroundColor="{StaticResource Red}" Clicked="OnCancelClicked" />
                 </Grid>
                 <Grid x:Name="DoneButtons" ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="False">
                     <Button x:Name="AgainButton" Text="ЩЕ РАЗ" Style="{StaticResource GreenButton}" Clicked="OnAgainClicked" />

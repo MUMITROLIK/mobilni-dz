@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Survival.Controls"
+             x:Class="Survival.Pages.UpgradePage"
+             Title="Прокачка"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1A1C2C">
+
+    <Grid>
+        <controls:Backdrop />
+
+        <ScrollView>
+            <VerticalStackLayout Padding="18,14" Spacing="14" MaximumWidthRequest="760">
+                <controls:HudBar />
+
+                <Label Text="КРАФТ" Style="{StaticResource TitleLabel}" FontSize="22" HorizontalOptions="Start" />
+                <Label Text="Інструменти додають до видобутку ресурсів, зброя додає шкоди в бою. Кожен можна покращити до 3 рівня." FontSize="9" LineHeight="1.6" TextColor="#94B0C2" />
+                <VerticalStackLayout x:Name="ToolsLayout" Spacing="10" />
+
+                <Label Text="НАВИЧКИ" Style="{StaticResource TitleLabel}" FontSize="22" HorizontalOptions="Start" Margin="0,8,0,0" />
+                <Label x:Name="PointsLabel" FontSize="10" TextColor="{StaticResource Gold}" />
+                <VerticalStackLayout x:Name="SkillsLayout" Spacing="10" />
+
+                <Button Text="НАЗАД" Style="{StaticResource PixelButton}" Clicked="OnBackClicked" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Label x:Name="ToastLabel" IsVisible="False" VerticalOptions="End" HorizontalOptions="Center" Margin="0,0,0,40"
+               BackgroundColor="{StaticResource Ink}" TextColor="{StaticResource Gold}" Padding="16,10" FontSize="10" />
+    </Grid>
+</ContentPage>

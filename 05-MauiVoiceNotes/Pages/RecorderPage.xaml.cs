@@ -197,6 +197,38 @@ public partial class RecorderPage : ContentPage
         }
     }
 
+    /// <summary>Запасний шлях: ШІ складає тези з тексту запису, який ми вписали чи вставили вручну.</summary>
+    private async void OnSummarizeClicked(object? sender, EventArgs e)
+    {
+        if (ItemOf(sender) is not { } item || item.IsBusy) return;
+
+        if (string.IsNullOrWhiteSpace(item.Transcript))
+        {
+            item.AiText = "Спочатку впиши текст запису в поле вище.";
+            return;
+        }
+        if (!_ai.HasKey)
+        {
+            KeyOverlay.IsVisible = true;
+            return;
+        }
+
+        item.IsBusy = true;
+        item.AiText = "";
+        try
+        {
+            item.AiText = await _ai.SummarizeTextAsync(item.Transcript);
+        }
+        catch (Exception ex)
+        {
+            item.AiText = "ПОМИЛКА: " + ex.Message;
+        }
+        finally
+        {
+            item.IsBusy = false;
+        }
+    }
+
     private async void OnDeleteClicked(object? sender, EventArgs e)
     {
         if (ItemOf(sender) is not { } item) return;
