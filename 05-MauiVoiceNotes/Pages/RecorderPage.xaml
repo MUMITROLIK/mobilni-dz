@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:VoiceNotes.Models"
+             x:Class="VoiceNotes.Pages.RecorderPage"
+             Title="Диктофон"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1A1C2C">
+
+    <Grid>
+        <Image Source="bg_night.png" Aspect="AspectFill" />
+
+        <Grid RowDefinitions="Auto,Auto,*" Padding="18,14" RowSpacing="14" MaximumWidthRequest="760">
+
+            <!-- Шапка -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Label Text="ДИКТОФОН" Style="{StaticResource TitleLabel}" FontSize="26" HorizontalOptions="Start" VerticalOptions="Center" />
+                <Button Grid.Column="1" x:Name="ModelButton" Text="МОДЕЛЬ" ImageSource="icon_chip.png" ContentLayout="Left,10"
+                        Style="{StaticResource PixelButton}" FontSize="9" Padding="12,8" MaximumWidthRequest="320" Clicked="OnModelClicked" />
+            </Grid>
+
+            <!-- Панель запису: еквалайзер, час, велика кнопка -->
+            <Border Grid.Row="1" BackgroundColor="#CC1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="16,14">
+                <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                    <HorizontalStackLayout x:Name="BarsRow" Spacing="5" HeightRequest="64" HorizontalOptions="Center" />
+                    <Label x:Name="TimeLabel" Text="00:00" FontSize="28" TextColor="{StaticResource Gold}" HorizontalOptions="Center" />
+                    <ImageButton x:Name="RecordButton" Source="mic.png" WidthRequest="132" HeightRequest="132" Padding="14"
+                                 BackgroundColor="{StaticResource Panel}" BorderColor="{StaticResource Ink}" BorderWidth="5"
+                                 CornerRadius="0" HorizontalOptions="Center" Clicked="OnRecordClicked" />
+                    <Label x:Name="HintLabel" Text="НАТИСНИ, ЩОБ ЗАПИСАТИ" FontSize="9" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Список записів -->
+            <Grid Grid.Row="2" RowDefinitions="Auto,*" RowSpacing="8">
+                <Label x:Name="ListTitle" Text="ЗАПИСИ" Style="{StaticResource TitleLabel}" FontSize="14" HorizontalOptions="Start" />
+                <CollectionView Grid.Row="1" x:Name="RecordingsList" SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <Label Text="Поки що записів немає" HorizontalOptions="Center" Margin="0,30" TextColor="#8D91A0" />
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Recording">
+                            <Border BackgroundColor="{StaticResource Panel}" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,12">
+                                <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="10">
+                                    <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+                                        <VerticalStackLayout Spacing="6" VerticalOptions="Center">
+                                            <Label Text="{Binding Title}" FontSize="11" />
+                                            <Label Text="{Binding DurationText}" FontSize="10" TextColor="{StaticResource Gold}" />
+                                        </VerticalStackLayout>
+                                        <Button Grid.Column="1" ImageSource="{Binding PlayIcon}" Style="{StaticResource PixelButton}"
+                                                BackgroundColor="#257179" WidthRequest="64" HeightRequest="52" Padding="0" Clicked="OnPlayClicked" />
+                                        <Button Grid.Column="2" Text="ШІ" ImageSource="icon_ai.png" ContentLayout="Left,8"
+                                                Style="{StaticResource PixelButton}" FontSize="10" HeightRequest="52" Padding="12,0"
+                                                IsEnabled="{Binding CanSend}" Clicked="OnAiClicked" />
+                                        <Button Grid.Column="3" ImageSource="icon_trash.png" Style="{StaticResource PixelButton}"
+                                                BackgroundColor="{StaticResource Red}" WidthRequest="64" HeightRequest="52" Padding="0" Clicked="OnDeleteClicked" />
+                                    </Grid>
+
+                                    <Label Text="ШІ СЛУХАЄ ЗАПИС..." IsVisible="{Binding IsBusy}" TextColor="{StaticResource Gold}" FontSize="10" />
+
+                                    <Border IsVisible="{Binding HasAiText}" BackgroundColor="#1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="3" Padding="12,10">
+                                        <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                                        <Label Text="{Binding AiText}" FontSize="10" LineHeight="1.7" LineBreakMode="WordWrap" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </Grid>
+
+        <!-- Вікно вибору моделі -->
+        <Grid x:Name="ModelOverlay" IsVisible="False" BackgroundColor="#B30F0F1A">
+            <Border VerticalOptions="Center" HorizontalOptions="Center" WidthRequest="540" MaximumHeightRequest="520"
+                    BackgroundColor="{StaticResource Panel}" Stroke="{StaticResource Ink}" StrokeThickness="6" Padding="20">
+                <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
+                    <Label Text="МОДЕЛЬ ШІ" Style="{StaticResource TitleLabel}" FontSize="20" />
+                    <Label Grid.Row="1" Text="Лише безкоштовні моделі, які вміють слухати звук" FontSize="9" HorizontalTextAlignment="Center" TextColor="#94B0C2" />
+                    <CollectionView Grid.Row="2" x:Name="ModelList" SelectionMode="None" HeightRequest="240">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="6" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Button Text="{Binding .}" Style="{StaticResource PixelButton}" FontSize="9" Padding="10,12"
+                                        BackgroundColor="#1A1C2C" Clicked="OnModelPicked" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Button Grid.Row="3" Text="ЗАКРИТИ" Style="{StaticResource PixelButton}" Clicked="OnModelCloseClicked" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Вікно введення ключа (з'являється, якщо ключа немає) -->
+        <Grid x:Name="KeyOverlay" IsVisible="False" BackgroundColor="#E60F0F1A">
+            <Border VerticalOptions="Center" HorizontalOptions="Center" WidthRequest="520"
+                    BackgroundColor="{StaticResource Panel}" Stroke="{StaticResource Ink}" StrokeThickness="6" Padding="24">
+                <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="16">
+                    <Label Text="ПОТРІБЕН КЛЮЧ" Style="{StaticResource TitleLabel}" FontSize="20" />
+                    <Label Text="Запис можна робити й без ключа. Щоб ШІ розпізнавав мову, створи безкоштовний ключ на openrouter.ai/keys і встав його сюди."
+                           LineHeight="1.7" HorizontalTextAlignment="Center" FontSize="10" />
+                    <Border BackgroundColor="#1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="12,0">
+                        <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                        <Entry x:Name="KeyEntry" IsPassword="True" Placeholder="sk-or-v1-..." PlaceholderColor="#566C86"
+                               TextColor="{StaticResource Paper}" FontFamily="PixelFont" FontSize="10" HeightRequest="50"
+                               BackgroundColor="Transparent" Completed="OnKeySaveClicked" />
+                    </Border>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Button Text="ЗБЕРЕГТИ" Style="{StaticResource GreenButton}" Clicked="OnKeySaveClicked" />
+                        <Button Grid.Column="1" Text="ПІЗНІШЕ" Style="{StaticResource PixelButton}" Clicked="OnKeyLaterClicked" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>
