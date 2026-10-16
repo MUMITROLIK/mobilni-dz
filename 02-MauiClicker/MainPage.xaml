@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Clicker.Models"
+             x:Class="Clicker.MainPage"
+             Title="Клікер"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1A1C2C">
+
+    <ContentPage.Resources>
+        <!-- Палітра Sweetie-16: обмежений набір кольорів дає «ігровий» вигляд -->
+        <Color x:Key="Ink">#0F0F1A</Color>
+        <Color x:Key="Panel">#333C57</Color>
+        <Color x:Key="Gold">#FFCD75</Color>
+        <Color x:Key="Paper">#F4F4F4</Color>
+
+        <!-- Кнопки без заокруглень і з товстою рамкою - виглядають як пікселі -->
+        <Style x:Key="PixelButton" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="{StaticResource Panel}" />
+            <Setter Property="TextColor" Value="{StaticResource Paper}" />
+            <Setter Property="BorderColor" Value="{StaticResource Ink}" />
+            <Setter Property="BorderWidth" Value="4" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="Padding" Value="12,10" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- Фон на весь екран -->
+        <Image Source="bg_night.png" Aspect="AspectFill" />
+
+        <ScrollView x:Name="MainScroll">
+            <VerticalStackLayout Padding="20,24" Spacing="16" MaximumWidthRequest="520">
+
+                <Label Text="КЛІКЕР" FontSize="40" FontAttributes="Bold" TextColor="{StaticResource Gold}"
+                       HorizontalOptions="Center">
+                    <Label.Shadow>
+                        <Shadow Brush="{StaticResource Ink}" Offset="4,4" Radius="0" Opacity="1" />
+                    </Label.Shadow>
+                </Label>
+
+                <!-- Табло -->
+                <Border BackgroundColor="#CC1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,10">
+                    <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="4">
+                        <Label x:Name="CoinsLabel" Text="Монети: 0" FontSize="30" FontAttributes="Bold"
+                               TextColor="{StaticResource Gold}" HorizontalOptions="Center" />
+                        <Label x:Name="ClickPowerLabel" Text="За клік: 1" FontSize="16" TextColor="{StaticResource Paper}" HorizontalOptions="Center" />
+                        <Label x:Name="PerSecondLabel" Text="За секунду: 0" FontSize="16" TextColor="{StaticResource Paper}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Велика кнопка-картинка: монета -->
+                <ImageButton x:Name="CoinButton" Source="coin.png" HeightRequest="160" WidthRequest="160"
+                             BackgroundColor="Transparent" HorizontalOptions="Center" Clicked="OnClickButtonClicked" />
+
+                <Label Text="МАГАЗИН" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Paper}" HorizontalOptions="Center">
+                    <Label.Shadow>
+                        <Shadow Brush="{StaticResource Ink}" Offset="3,3" Radius="0" Opacity="1" />
+                    </Label.Shadow>
+                </Label>
+
+                <!-- Список товарів малюється з колекції: один шаблон на всі кнопки -->
+                <VerticalStackLayout x:Name="ShopLayout" Spacing="10">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:ShopItem">
+                            <Button Text="{Binding ButtonText}"
+                                    ImageSource="{Binding Icon}"
+                                    ContentLayout="Left,14"
+                                    Style="{StaticResource PixelButton}"
+                                    HeightRequest="78"
+                                    FontSize="15"
+                                    Clicked="OnBuyClicked" />
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,6,0,0">
+                    <Button Grid.Column="0" Text="Зберегти" ImageSource="icon_save.png" ContentLayout="Top,6"
+                            Style="{StaticResource PixelButton}" Clicked="OnSaveClicked" />
+                    <Button Grid.Column="1" Text="Завантажити" ImageSource="icon_load.png" ContentLayout="Top,6"
+                            Style="{StaticResource PixelButton}" Clicked="OnLoadClicked" />
+                    <Button Grid.Column="2" Text="Скинути" ImageSource="icon_reset.png" ContentLayout="Top,6"
+                            Style="{StaticResource PixelButton}" BackgroundColor="#B13E53" Clicked="OnResetClicked" />
+                </Grid>
+
+                <Label x:Name="StatusLabel" Text="" TextColor="{StaticResource Paper}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
