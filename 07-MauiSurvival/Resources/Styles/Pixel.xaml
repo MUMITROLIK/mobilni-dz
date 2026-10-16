@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Спільний «піксельний» стиль для всіх екранів. Палітра Sweetie-16. -->
+    <Color x:Key="Ink">#0F0F1A</Color>
+    <Color x:Key="Panel">#333C57</Color>
+    <Color x:Key="Gold">#FFCD75</Color>
+    <Color x:Key="Paper">#F4F4F4</Color>
+    <Color x:Key="Green">#38B764</Color>
+    <Color x:Key="Red">#B13E53</Color>
+
+    <!-- Усі написи - піксельним шрифтом -->
+    <Style TargetType="Label">
+        <Setter Property="FontFamily" Value="PixelFont" />
+        <Setter Property="TextColor" Value="{StaticResource Paper}" />
+        <Setter Property="FontSize" Value="11" />
+    </Style>
+
+    <!-- Кнопки без заокруглень і з товстою рамкою -->
+    <Style x:Key="PixelButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Panel}" />
+        <Setter Property="TextColor" Value="{StaticResource Paper}" />
+        <Setter Property="BorderColor" Value="{StaticResource Ink}" />
+        <Setter Property="BorderWidth" Value="4" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="FontFamily" Value="PixelFont" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="14,14" />
+        <!-- Відгук на мишку і дотик: кнопка трохи збільшується при наведенні і «вдавлюється» при натисканні -->
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal"><VisualState.Setters><Setter Property="Scale" Value="1" /></VisualState.Setters></VisualState>
+                    <VisualState x:Name="PointerOver"><VisualState.Setters><Setter Property="Scale" Value="1.03" /></VisualState.Setters></VisualState>
+                    <VisualState x:Name="Pressed"><VisualState.Setters><Setter Property="Scale" Value="0.95" /></VisualState.Setters></VisualState>
+                    <VisualState x:Name="Disabled" />
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GreenButton" TargetType="Button" BasedOn="{StaticResource PixelButton}">
+        <Setter Property="BackgroundColor" Value="{StaticResource Green}" />
+        <Setter Property="TextColor" Value="{StaticResource Ink}" />
+    </Style>
+
+    <!-- Заголовок з жорсткою (без розмиття) тінню -->
+    <Style x:Key="TitleLabel" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource Gold}" />
+        <Setter Property="FontSize" Value="34" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="{StaticResource Ink}" Offset="4,4" Radius="0" Opacity="1" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

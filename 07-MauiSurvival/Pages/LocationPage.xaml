@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Survival.Controls"
+             x:Class="Survival.Pages.LocationPage"
+             Title="Локація"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1A1C2C">
+
+    <Grid>
+        <controls:Backdrop />
+
+        <ScrollView>
+            <VerticalStackLayout Padding="18,14" Spacing="14" MaximumWidthRequest="760">
+                <controls:HudBar />
+
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Image x:Name="LocationIcon" WidthRequest="60" HeightRequest="60" VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                        <Label x:Name="TitleLabel" Style="{StaticResource TitleLabel}" FontSize="22" HorizontalOptions="Start" />
+                        <Label x:Name="DescriptionLabel" FontSize="9" TextColor="#94B0C2" LineHeight="1.6" />
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" x:Name="WorkerImage" Source="hero.png" WidthRequest="72" HeightRequest="72" VerticalOptions="Center" />
+                </Grid>
+
+                <!-- Кнопки дій для збору ресурсів: будуються в коді за списком дій локації -->
+                <VerticalStackLayout x:Name="ActionsLayout" Spacing="12" />
+
+                <Button Text="НАЗАД" Style="{StaticResource PixelButton}" Clicked="OnBackClicked" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Шар для літаючих написів «+3 ДЕРЕВО» -->
+        <AbsoluteLayout x:Name="Overlay" InputTransparent="True" />
+    </Grid>
+</ContentPage>

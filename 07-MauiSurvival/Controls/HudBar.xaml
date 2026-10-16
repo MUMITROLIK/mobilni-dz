@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Survival.Controls.HudBar">
+
+    <!-- Верхня панель стану героя: показується на всіх ігрових екранах -->
+    <Border BackgroundColor="#E61A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,10">
+        <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+        <VerticalStackLayout Spacing="8">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label x:Name="LevelLabel" Text="РІВЕНЬ 1" TextColor="{StaticResource Gold}" FontSize="12" />
+                <Label Grid.Column="1" x:Name="DayLabel" Text="ДЕНЬ 1" FontSize="10" TextColor="#94B0C2" />
+            </Grid>
+            <ContentView x:Name="XpRow" />
+
+            <Grid x:Name="BarsGrid" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="6">
+                <Image x:Name="HealthIcon" Source="stat_health.png" WidthRequest="30" HeightRequest="30" />
+                <Label Grid.Column="2" x:Name="HealthLabel" Text="100" FontSize="10" VerticalOptions="Center" WidthRequest="44" HorizontalTextAlignment="End" />
+
+                <Image x:Name="HungerIcon" Grid.Row="1" Source="stat_food.png" WidthRequest="30" HeightRequest="30" />
+                <Label Grid.Row="1" Grid.Column="2" x:Name="HungerLabel" Text="100" FontSize="10" VerticalOptions="Center" WidthRequest="44" HorizontalTextAlignment="End" />
+
+                <Image x:Name="EnergyIcon" Grid.Row="2" Source="stat_energy.png" WidthRequest="30" HeightRequest="30" />
+                <Label Grid.Row="2" Grid.Column="2" x:Name="EnergyLabel" Text="100" FontSize="10" VerticalOptions="Center" WidthRequest="44" HorizontalTextAlignment="End" />
+            </Grid>
+
+            <!-- Що робимо зараз: збір ресурсу або сон -->
+            <VerticalStackLayout x:Name="TaskBox" IsVisible="False" Spacing="6">
+                <Label x:Name="TaskLabel" Text="" TextColor="{StaticResource Gold}" FontSize="9" />
+                <ContentView x:Name="TaskBarRow" />
+            </VerticalStackLayout>
+
+            <Label x:Name="MessageLabel" Text="" TextColor="#A7F070" FontSize="10" IsVisible="False" />
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

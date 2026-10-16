@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Survival.Controls"
+             x:Class="Survival.Pages.ScenePage"
+             Title="Сцена"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1A1C2C">
+
+    <Grid>
+        <controls:Backdrop />
+
+        <Grid RowDefinitions="Auto,*,Auto" Padding="18,14" RowSpacing="12" MaximumWidthRequest="900">
+
+            <controls:HudBar ShowTask="False" />
+
+            <!-- Сцена: небо, земля, герой і ціль. Усе, що рухається, малюється з коду -->
+            <Border Grid.Row="1" Stroke="{StaticResource Ink}" StrokeThickness="6" Padding="0" MinimumHeightRequest="300">
+                <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                <Grid x:Name="Stage" RowDefinitions="62*,38*" ColumnDefinitions="*,*">
+
+                    <!-- Небо: чотири смуги кольору, щоб був піксельний «градієнт» -->
+                    <Grid x:Name="Sky" Grid.ColumnSpan="2" RowDefinitions="*,*,*,*">
+                        <BoxView x:Name="Sky0" /><BoxView x:Name="Sky1" Grid.Row="1" /><BoxView x:Name="Sky2" Grid.Row="2" /><BoxView x:Name="Sky3" Grid.Row="3" />
+                    </Grid>
+                    <Image x:Name="SkyDecor" Grid.ColumnSpan="2" HorizontalOptions="End" VerticalOptions="Start" Margin="0,22,50,0" WidthRequest="60" HeightRequest="60" Opacity="0.9" />
+
+                    <!-- Земля з текстурою -->
+                    <BoxView x:Name="Ground" Grid.Row="1" Grid.ColumnSpan="2" />
+                    <BoxView x:Name="GroundEdge" Grid.Row="1" Grid.ColumnSpan="2" HeightRequest="8" VerticalOptions="Start" />
+                    <AbsoluteLayout x:Name="GroundTexture" Grid.Row="1" Grid.ColumnSpan="2" InputTransparent="True" />
+
+                    <!-- Ціль (дерево, камінь, ягоди...) -->
+                    <Grid x:Name="TargetCell" Grid.Column="1" Grid.RowSpan="2" VerticalOptions="End" HorizontalOptions="Center" Margin="0,0,0,62">
+                        <Image x:Name="TargetImage" HeightRequest="150" WidthRequest="150" />
+                    </Grid>
+
+                    <!-- Герой із інструментом -->
+                    <Grid x:Name="HeroCell" Grid.Column="0" Grid.RowSpan="2" VerticalOptions="End" HorizontalOptions="Center" Margin="0,0,0,62">
+                        <Image x:Name="HeroImage" Source="hero_big.png" HeightRequest="168" WidthRequest="168" />
+                        <Image x:Name="ToolImage" HeightRequest="96" WidthRequest="96" HorizontalOptions="End" VerticalOptions="Start"
+                               Margin="0,26,-58,0" AnchorX="0.15" AnchorY="0.9" />
+                    </Grid>
+
+                    <!-- Шар для щепок, іскор, часток та літаючих написів -->
+                    <AbsoluteLayout x:Name="FxLayer" Grid.RowSpan="2" Grid.ColumnSpan="2" InputTransparent="True" />
+
+                    <!-- Спалах при ударі -->
+                    <BoxView x:Name="Flash" Grid.RowSpan="2" Grid.ColumnSpan="2" Color="White" Opacity="0" InputTransparent="True" />
+
+                    <!-- Підпис дії у лівому верхньому куті -->
+                    <Label x:Name="SceneTitle" Grid.ColumnSpan="2" HorizontalOptions="Start" VerticalOptions="Start" Margin="16,14,0,0"
+                           TextColor="#F4F4F4" FontSize="12" InputTransparent="True">
+                        <Label.Shadow><Shadow Brush="{StaticResource Ink}" Offset="2,2" Radius="0" Opacity="1" /></Label.Shadow>
+                    </Label>
+
+                    <!-- Результат після завершення -->
+                    <Border x:Name="ResultPanel" Grid.RowSpan="2" Grid.ColumnSpan="2" IsVisible="False" HorizontalOptions="Center" VerticalOptions="Center"
+                            BackgroundColor="#F21A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="6" Padding="28,16" WidthRequest="340">
+                        <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="9" HorizontalOptions="Center">
+                            <Label x:Name="ResultTitle" Text="ГОТОВО!" Style="{StaticResource TitleLabel}" FontSize="20" />
+                            <Image x:Name="ResultIcon" WidthRequest="96" HeightRequest="96" HorizontalOptions="Center" />
+                            <Label x:Name="ResultAmount" FontSize="20" TextColor="{StaticResource Gold}" HorizontalOptions="Center" />
+                            <Label x:Name="ResultInfo" FontSize="10" TextColor="#94B0C2" HorizontalOptions="Center" HorizontalTextAlignment="Center" LineHeight="1.7" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Низ: смуга прогресу і кнопки -->
+            <VerticalStackLayout Grid.Row="2" Spacing="10">
+                <Label x:Name="ProgressLabel" Text="" FontSize="10" TextColor="{StaticResource Gold}" />
+                <ContentView x:Name="ProgressHolder" />
+
+                <Grid x:Name="WorkButtons" ColumnDefinitions="*">
+                    <Button Text="ПЕРЕРВАТИ" Style="{StaticResource PixelButton}" BackgroundColor="{StaticResource Red}" Clicked="OnCancelClicked" />
+                </Grid>
+                <Grid x:Name="DoneButtons" ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="False">
+                    <Button x:Name="AgainButton" Text="ЩЕ РАЗ" Style="{StaticResource GreenButton}" Clicked="OnAgainClicked" />
+                    <Button Grid.Column="1" Text="НАЗАД" Style="{StaticResource PixelButton}" Clicked="OnBackClicked" />
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

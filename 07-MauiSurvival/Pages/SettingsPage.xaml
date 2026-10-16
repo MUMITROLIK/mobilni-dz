@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Survival.Controls"
+             x:Class="Survival.Pages.SettingsPage"
+             Title="Налаштування"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1A1C2C">
+
+    <Grid>
+        <controls:Backdrop />
+
+        <ScrollView VerticalOptions="Center">
+            <VerticalStackLayout Padding="18,14" Spacing="16" WidthRequest="520">
+
+                <Label Text="НАЛАШТУВАННЯ" Style="{StaticResource TitleLabel}" FontSize="26" />
+
+                <Border BackgroundColor="#CC1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="18,16">
+                    <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="14">
+                        <Label x:Name="MusicLabel" Text="МУЗИКА: 70" FontSize="10" />
+                        <Slider x:Name="MusicSlider" Minimum="0" Maximum="100" MinimumTrackColor="#38B764" MaximumTrackColor="#566C86" ThumbColor="#FFCD75" ValueChanged="OnMusicChanged" />
+
+                        <Label x:Name="SoundLabel" Text="ЗВУКИ: 70" FontSize="10" />
+                        <Slider x:Name="SoundSlider" Minimum="0" Maximum="100" MinimumTrackColor="#38B764" MaximumTrackColor="#566C86" ThumbColor="#FFCD75" ValueChanged="OnSoundChanged" />
+
+                        <Button x:Name="HintsButton" Text="ПІДКАЗКИ: УВІМК." Style="{StaticResource PixelButton}" FontSize="10" Clicked="OnHintsClicked" />
+
+                        <Label Text="Звук і графіку ми поки не вміємо налаштовувати, тому ці параметри лише зберігаються (заглушка)." FontSize="8" TextColor="#94B0C2" LineHeight="1.7" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="НАЗАД" Style="{StaticResource PixelButton}" Clicked="OnBackClicked" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

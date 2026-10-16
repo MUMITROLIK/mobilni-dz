@@ -13,5 +13,6 @@
 | [04-MauiAiChat](04-MauiAiChat) | Чат з ШІ на .NET MAUI через OpenRouter (бібліотека OpenAI) |
 | [05-MauiVoiceNotes](05-MauiVoiceNotes) | Диктофон на .NET MAUI: запис з мікрофона, відтворення, відправка в ШІ |
 | [06-MauiPasswordVault](06-MauiPasswordVault) | Менеджер паролів на .NET MAUI: шифрування, категорії, теги, генератор |
+| [07-MauiSurvival](07-MauiSurvival) | Гра на виживання: екрани, локації, фарм за часом, анімовані сцени дій |
 
 Папки `bin/` та `obj/` у репозиторій не потрапляють (`.gitignore` для .NET).
