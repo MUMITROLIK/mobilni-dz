@@ -1,0 +1,76 @@
+﻿<Window x:Class="MovieSearch.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Пошук фільмів (TMDB)" Height="620" Width="980" MinHeight="480" MinWidth="760"
+        Background="#FF1E1E24" Foreground="White">
+    <Window.Resources>
+        <Style TargetType="TextBlock"><Setter Property="Foreground" Value="White"/></Style>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Верхня панель: пошук і вибір каталогу -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+            <ComboBox x:Name="CatalogBox" DockPanel.Dock="Right" Width="200" Margin="8,0,0,0"
+                      SelectionChanged="CatalogBox_SelectionChanged" DisplayMemberPath="Key" SelectedValuePath="Value"/>
+            <Button x:Name="SearchButton" DockPanel.Dock="Right" Content="Знайти" Width="90" Margin="8,0,0,0" Click="SearchButton_Click" IsDefault="True"/>
+            <TextBox x:Name="SearchBox" FontSize="16" Padding="6" VerticalContentAlignment="Center"/>
+        </DockPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="1.1*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Список фільмів -->
+            <ListBox x:Name="MoviesList" Grid.Column="0" Background="#FF2A2A32" BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     SelectionChanged="MoviesList_SelectionChanged">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="2">
+                            <Image Source="{Binding PosterUrl}" Width="60" Height="90" Stretch="UniformToFill"/>
+                            <StackPanel Margin="10,0,0,0" Width="280">
+                                <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Year}" Foreground="#FFAAAAAA"/>
+                                <TextBlock Text="{Binding RatingText}" Foreground="Gold"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- Деталі вибраного фільму -->
+            <Border Grid.Column="2" Background="#FF2A2A32" Padding="14">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="DetailsPanel" Visibility="Collapsed">
+                        <Image x:Name="DetailPoster" MaxHeight="320" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+                        <TextBlock x:Name="DetailTitle" FontSize="22" FontWeight="Bold" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="DetailMeta" Foreground="Gold" Margin="0,4,0,10"/>
+                        <TextBlock x:Name="DetailOverview" TextWrapping="Wrap" FontSize="14"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <TextBlock x:Name="HintText" Grid.Column="2" Text="Виберіть фільм зі списку" Foreground="#FF888888"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- Нижня панель: сторінки і статус -->
+        <DockPanel Grid.Row="2" Margin="0,10,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button x:Name="PrevButton" Content="◀ Назад" Width="80" Click="PrevButton_Click" IsEnabled="False"/>
+                <TextBlock x:Name="PageText" Margin="12,0" VerticalAlignment="Center" Text="Сторінка 1"/>
+                <Button x:Name="NextButton" Content="Далі ▶" Width="80" Click="NextButton_Click" IsEnabled="False"/>
+            </StackPanel>
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" Foreground="#FFCCCCCC"/>
+        </DockPanel>
+    </Grid>
+</Window>
