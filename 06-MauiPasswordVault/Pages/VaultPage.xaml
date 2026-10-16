@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:PassVault.Models"
+             xmlns:controls="clr-namespace:PassVault.Controls"
+             x:Class="PassVault.Pages.VaultPage"
+             Title="Сейф паролів"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1A1C2C">
+
+    <Grid>
+        <Image Source="bg_night.png" Aspect="AspectFill" />
+
+        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Padding="18,14" RowSpacing="12" MaximumWidthRequest="840">
+
+            <!-- Шапка -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                <Image Source="logo_key.png" WidthRequest="60" HeightRequest="60" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="СЕЙФ ПАРОЛІВ" Style="{StaticResource TitleLabel}" FontSize="24" HorizontalOptions="Start" VerticalOptions="Center" />
+                <Label Grid.Column="2" x:Name="CountLabel" Text="0 ЗАПИСІВ" TextColor="{StaticResource Gold}" VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Пошук -->
+            <Border Grid.Row="1" BackgroundColor="#CC1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,0">
+                <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                <Entry x:Name="SearchEntry" Placeholder="Пошук: назва, сайт, логін, тег..." PlaceholderColor="#566C86"
+                       TextColor="{StaticResource Paper}" FontFamily="PixelFont" FontSize="10" HeightRequest="48"
+                       BackgroundColor="Transparent" TextChanged="OnSearchChanged" />
+            </Border>
+
+            <!-- Категорії -->
+            <ScrollView Grid.Row="2" Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                <HorizontalStackLayout x:Name="ChipsRow" Spacing="8" />
+            </ScrollView>
+
+            <!-- Список паролів -->
+            <CollectionView Grid.Row="3" x:Name="EntriesList" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Spacing="14" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Image Source="logo_key.png" WidthRequest="96" HeightRequest="96" Opacity="0.6" />
+                        <Label x:Name="EmptyLabel" Text="Тут поки порожньо. Додай перший пароль!" HorizontalTextAlignment="Center" TextColor="#8D91A0" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:EntryItem">
+                        <Border BackgroundColor="{StaticResource Panel}" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,12">
+                            <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Image Source="{Binding CategoryIcon}" WidthRequest="48" HeightRequest="48" VerticalOptions="Center" />
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" FontSize="13" TextColor="{StaticResource Gold}" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Subtitle}" IsVisible="{Binding HasSubtitle}" FontSize="9" TextColor="#94B0C2" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding PasswordShown}" FontSize="12" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding TagText}" IsVisible="{Binding HasTag}" FontSize="8" TextColor="#A7F070" />
+                                </VerticalStackLayout>
+
+                                <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+                                    <Button ImageSource="{Binding EyeIcon}" Style="{StaticResource PixelButton}" WidthRequest="56" HeightRequest="48" Padding="0" Clicked="OnRevealClicked" />
+                                    <Button ImageSource="icon_copy.png" Style="{StaticResource PixelButton}" BackgroundColor="#257179" WidthRequest="56" HeightRequest="48" Padding="0" Clicked="OnCopyClicked" />
+                                    <Button ImageSource="icon_edit.png" Style="{StaticResource PixelButton}" WidthRequest="56" HeightRequest="48" Padding="0" Clicked="OnEditClicked" />
+                                    <Button ImageSource="icon_trash.png" Style="{StaticResource PixelButton}" BackgroundColor="{StaticResource Red}" WidthRequest="56" HeightRequest="48" Padding="0" Clicked="OnDeleteClicked" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Кнопка «додати» -->
+            <Button Grid.Row="4" Text="ДОДАТИ ПАРОЛЬ" ImageSource="icon_plus.png" ContentLayout="Left,14"
+                    Style="{StaticResource GreenButton}" FontSize="13" HeightRequest="60" Clicked="OnAddClicked" />
+        </Grid>
+
+        <Label x:Name="ToastLabel" IsVisible="False" Text="" VerticalOptions="End" HorizontalOptions="Center" Margin="0,0,0,90"
+               BackgroundColor="{StaticResource Ink}" TextColor="{StaticResource Gold}" Padding="16,10" FontSize="10" />
+
+        <controls:PixelDialog x:Name="Dialog" />
+    </Grid>
+</ContentPage>

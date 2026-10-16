@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PassVault.Pages.EntryPage"
+             Title="Запис"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1A1C2C">
+
+    <ContentPage.Resources>
+        <!-- Поле вводу в піксельному стилі: рамка + прозорий Entry всередині -->
+        <Style x:Key="FieldBorder" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#1A1C2C" />
+            <Setter Property="Stroke" Value="{StaticResource Ink}" />
+            <Setter Property="StrokeThickness" Value="4" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="StrokeShape"><Setter.Value><Rectangle /></Setter.Value></Setter>
+        </Style>
+        <Style x:Key="FieldEntry" TargetType="Entry">
+            <Setter Property="TextColor" Value="{StaticResource Paper}" />
+            <Setter Property="PlaceholderColor" Value="#566C86" />
+            <Setter Property="FontFamily" Value="PixelFont" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="HeightRequest" Value="48" />
+            <Setter Property="BackgroundColor" Value="Transparent" />
+        </Style>
+        <Style x:Key="FieldTitle" TargetType="Label">
+            <Setter Property="FontSize" Value="9" />
+            <Setter Property="TextColor" Value="#94B0C2" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid>
+        <Image Source="bg_night.png" Aspect="AspectFill" />
+
+        <ScrollView>
+            <VerticalStackLayout Padding="18,14" Spacing="12" MaximumWidthRequest="720">
+
+                <Label x:Name="PageTitle" Text="НОВИЙ ПАРОЛЬ" Style="{StaticResource TitleLabel}" FontSize="22" HorizontalOptions="Start" />
+
+                <!-- Основні поля -->
+                <Border BackgroundColor="#CC1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="16,14">
+                    <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="НАЗВА" Style="{StaticResource FieldTitle}" />
+                        <Border Style="{StaticResource FieldBorder}"><Entry x:Name="NameEntry" Style="{StaticResource FieldEntry}" Placeholder="Наприклад, Instagram" /></Border>
+
+                        <Label Text="САЙТ" Style="{StaticResource FieldTitle}" />
+                        <Border Style="{StaticResource FieldBorder}"><Entry x:Name="SiteEntry" Style="{StaticResource FieldEntry}" Placeholder="instagram.com" Keyboard="Url" /></Border>
+
+                        <Label Text="ЛОГІН" Style="{StaticResource FieldTitle}" />
+                        <Border Style="{StaticResource FieldBorder}"><Entry x:Name="LoginEntry" Style="{StaticResource FieldEntry}" Placeholder="Логін або пошта" /></Border>
+
+                        <Label Text="ПАРОЛЬ" Style="{StaticResource FieldTitle}" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Border Style="{StaticResource FieldBorder}">
+                                <Entry x:Name="PasswordEntry" Style="{StaticResource FieldEntry}" Placeholder="Введи або згенеруй" IsPassword="True" TextChanged="OnPasswordChanged" />
+                            </Border>
+                            <Button Grid.Column="1" x:Name="EyeButton" ImageSource="icon_eye.png" Style="{StaticResource PixelButton}" WidthRequest="60" HeightRequest="56" Padding="0" Clicked="OnEyeClicked" />
+                        </Grid>
+
+                        <!-- Індикатор стійкості: п'ять сегментів і підпис -->
+                        <HorizontalStackLayout Spacing="6">
+                            <BoxView x:Name="Seg0" WidthRequest="38" HeightRequest="12" Color="#333C57" />
+                            <BoxView x:Name="Seg1" WidthRequest="38" HeightRequest="12" Color="#333C57" />
+                            <BoxView x:Name="Seg2" WidthRequest="38" HeightRequest="12" Color="#333C57" />
+                            <BoxView x:Name="Seg3" WidthRequest="38" HeightRequest="12" Color="#333C57" />
+                            <BoxView x:Name="Seg4" WidthRequest="38" HeightRequest="12" Color="#333C57" />
+                            <Label x:Name="StrengthLabel" Text="" FontSize="9" VerticalOptions="Center" Margin="8,0,0,0" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Генератор паролів -->
+                <Border BackgroundColor="#CC1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="16,14">
+                    <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="ГЕНЕРАТОР ПАРОЛІВ" TextColor="{StaticResource Gold}" FontSize="12" />
+
+                        <Label Text="РІВЕНЬ СКЛАДНОСТІ" Style="{StaticResource FieldTitle}" />
+                        <HorizontalStackLayout x:Name="PresetsRow" Spacing="8" />
+
+                        <Label x:Name="LengthLabel" Text="ДОВЖИНА: 16" Style="{StaticResource FieldTitle}" />
+                        <Slider x:Name="LengthSlider" Minimum="6" Maximum="32" Value="16" MinimumTrackColor="#38B764" MaximumTrackColor="#566C86" ThumbColor="#FFCD75" ValueChanged="OnLengthChanged" />
+
+                        <Label Text="СИМВОЛИ" Style="{StaticResource FieldTitle}" />
+                        <HorizontalStackLayout x:Name="SetsRow" Spacing="8" />
+
+                        <Button Text="ЗГЕНЕРУВАТИ" ImageSource="icon_dice.png" ContentLayout="Left,12"
+                                Style="{StaticResource GreenButton}" FontSize="12" HeightRequest="56" Clicked="OnGenerateClicked" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Категорія і тег -->
+                <Border BackgroundColor="#CC1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="16,14">
+                    <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="КАТЕГОРІЯ" Style="{StaticResource FieldTitle}" />
+                        <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                            <HorizontalStackLayout x:Name="CategoryRow" Spacing="8" />
+                        </ScrollView>
+
+                        <Label Text="ТЕГ (НЕОБОВ'ЯЗКОВО)" Style="{StaticResource FieldTitle}" />
+                        <Border Style="{StaticResource FieldBorder}"><Entry x:Name="TagEntry" Style="{StaticResource FieldEntry}" Placeholder="Наприклад, моя компанія" /></Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label x:Name="ErrorLabel" Text="" TextColor="#EF7D57" IsVisible="False" HorizontalOptions="Center" />
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Button Text="ЗБЕРЕГТИ" Style="{StaticResource GreenButton}" HeightRequest="58" Clicked="OnSaveClicked" />
+                    <Button Grid.Column="1" Text="СКАСУВАТИ" Style="{StaticResource PixelButton}" HeightRequest="58" Clicked="OnCancelClicked" />
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
