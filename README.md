@@ -8,6 +8,6 @@
 | Папка | Завдання |
 |---|---|
 | [01-WpfMovieSearch](01-WpfMovieSearch) | WPF-застосунок для пошуку фільмів (TMDB API) |
-| [02-MauiClicker](02-MauiClicker) | Кліker на .NET MAUI: магазин, збереження у файл, картинки на кнопках |
+| [02-MauiClicker](02-MauiClicker) | Клікер на .NET MAUI: магазин, збереження у файл, картинки на кнопках |
 
 Папки `bin/` та `obj/` у репозиторій не потрапляють (`.gitignore` для .NET).
