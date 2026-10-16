@@ -18,6 +18,8 @@ public class Movie
     public string? PosterUrl => string.IsNullOrEmpty(PosterPath) ? null : "https://image.tmdb.org/t/p/w342" + PosterPath;
     public string Year => ReleaseDate is { Length: >= 4 } ? ReleaseDate[..4] : "—";
     public string RatingText => VoteCount == 0 ? "немає оцінок" : "★ " + VoteAverage.ToString("0.0", CultureInfo.InvariantCulture) + " / 10";
+    public string RatingShort => VoteCount == 0 ? "—" : "★ " + VoteAverage.ToString("0.0", CultureInfo.InvariantCulture);
+    public string VotesText => VoteCount == 0 ? "" : $"  ·  {VoteCount} голосів";
     public string OverviewText => string.IsNullOrWhiteSpace(Overview) ? "Опис відсутній." : Overview;
 }
 

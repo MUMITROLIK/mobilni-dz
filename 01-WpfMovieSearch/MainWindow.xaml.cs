@@ -1,8 +1,6 @@
 ﻿using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
-using MovieSearch.Models;
 using MovieSearch.Services;
 
 namespace MovieSearch;
@@ -14,6 +12,7 @@ public partial class MainWindow : Window
     // Стан: що зараз показуємо (пошук чи каталог) і на якій ми сторінці.
     private string _currentQuery = "";
     private string _currentCategory = "popular";
+    private string _currentTitle = "Популярні";
     private int _page = 1;
     private int _totalPages = 1;
     private bool _loading;
@@ -22,32 +21,25 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        CatalogBox.ItemsSource = new List<KeyValuePair<string, string>>
-        {
-            new("Популярні", "popular"),
-            new("Найвищий рейтинг", "top_rated"),
-            new("Зараз у кіно", "now_playing"),
-            new("Скоро в кіно", "upcoming"),
-        };
-
         var key = TmdbService.LoadApiKey();
         if (string.IsNullOrEmpty(key))
         {
             StatusText.Text = "Немає API-ключа TMDB. Дивіться README: створіть appsettings.local.json або змінну TMDB_API_KEY.";
             SearchButton.IsEnabled = false;
-            CatalogBox.IsEnabled = false;
+            TabsPanel.IsEnabled = false;
             return;
         }
 
         _tmdb = new TmdbService(key);
-        CatalogBox.SelectedIndex = 0; // це викликає завантаження "Популярних"
+        PopularTab.IsChecked = true; // спрацьовує Checked і завантажується перший каталог
     }
 
-    // Вибір каталогу: очищаємо рядок пошуку й показуємо категорію.
-    private async void CatalogBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    // Вибір вкладки каталогу: скидаємо пошук і показуємо категорію.
+    private async void Tab_Checked(object sender, RoutedEventArgs e)
     {
-        if (CatalogBox.SelectedValue is not string category) return;
+        if (sender is not RadioButton { Tag: string category } tab) return;
         _currentCategory = category;
+        _currentTitle = tab.Content?.ToString() ?? "";
         _currentQuery = "";
         SearchBox.Text = "";
         await LoadAsync(1);
@@ -55,7 +47,16 @@ public partial class MainWindow : Window
 
     private async void SearchButton_Click(object sender, RoutedEventArgs e)
     {
-        _currentQuery = SearchBox.Text.Trim();
+        var query = SearchBox.Text.Trim();
+        if (query.Length == 0)
+        {
+            PopularTab.IsChecked = true;
+            return;
+        }
+
+        _currentQuery = query;
+        // Пошук не належить жодній вкладці, тому знімаємо виділення з усіх.
+        foreach (var tab in TabsPanel.Children.OfType<RadioButton>()) tab.IsChecked = false;
         await LoadAsync(1);
     }
 
@@ -78,8 +79,9 @@ public partial class MainWindow : Window
             // TMDB віддає не більше 500 сторінок
             _totalPages = Math.Min(result.TotalPages, 500);
             MoviesList.ItemsSource = result.Results;
-            ShowDetails(null);
+            if (result.Results.Count > 0) MoviesList.ScrollIntoView(result.Results[0]);
 
+            HeadingText.Text = _currentQuery.Length > 0 ? $"Результати за запитом «{_currentQuery}»" : _currentTitle;
             PageText.Text = $"Сторінка {_page} з {Math.Max(_totalPages, 1)}";
             PrevButton.IsEnabled = _page > 1;
             NextButton.IsEnabled = _page < _totalPages;
@@ -93,20 +95,5 @@ public partial class MainWindow : Window
         {
             _loading = false;
         }
-    }
-
-    private void MoviesList_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
-        ShowDetails(MoviesList.SelectedItem as Movie);
-
-    private void ShowDetails(Movie? movie)
-    {
-        DetailsPanel.Visibility = movie is null ? Visibility.Collapsed : Visibility.Visible;
-        HintText.Visibility = movie is null ? Visibility.Visible : Visibility.Collapsed;
-        if (movie is null) return;
-
-        DetailTitle.Text = movie.Title;
-        DetailMeta.Text = $"{movie.Year}   {movie.RatingText}   (голосів: {movie.VoteCount})";
-        DetailOverview.Text = movie.OverviewText;
-        DetailPoster.Source = movie.PosterUrl is null ? null : new BitmapImage(new Uri(movie.PosterUrl));
     }
 }
