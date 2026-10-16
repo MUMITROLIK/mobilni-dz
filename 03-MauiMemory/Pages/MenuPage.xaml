@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MemoryGame.Controls"
+             x:Class="MemoryGame.Pages.MenuPage"
+             Title="Меню"
+             BackgroundColor="#1A1C2C">
+
+    <Grid>
+        <Image Source="bg_night.png" Aspect="AspectFill" />
+
+        <!-- Декор: малюнки, що плавно «літають» (анімація в коді) -->
+        <Image x:Name="DecoMoon" Source="deco_moon.png" HeightRequest="72" WidthRequest="72"
+               HorizontalOptions="Start" VerticalOptions="Start" Margin="70,50,0,0" />
+        <Image x:Name="DecoStar" Source="deco_star.png" HeightRequest="72" WidthRequest="72"
+               HorizontalOptions="End" VerticalOptions="Start" Margin="0,80,90,0" />
+        <Image x:Name="DecoGhost" Source="deco_ghost.png" HeightRequest="72" WidthRequest="72"
+               HorizontalOptions="Start" VerticalOptions="End" Margin="110,0,0,130" />
+        <Image x:Name="DecoHeart" Source="deco_heart.png" HeightRequest="72" WidthRequest="72"
+               HorizontalOptions="End" VerticalOptions="End" Margin="0,0,120,150" />
+
+        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="16" WidthRequest="400" Padding="10">
+
+            <Label Text="MEMORY" Style="{StaticResource TitleLabel}" FontSize="48" />
+
+            <Border BackgroundColor="{StaticResource Ink}" Padding="14,8" HorizontalOptions="Center" StrokeThickness="0">
+                <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                <Label Text="ЗНАЙДИ ВСІ ПАРИ" TextColor="{StaticResource Gold}" />
+            </Border>
+
+            <!-- Ряд карток, які самі перевертаються -->
+            <HorizontalStackLayout x:Name="DemoRow" HorizontalOptions="Center" Spacing="10" Margin="0,8,0,14">
+                <Image Source="card_back.png" HeightRequest="64" WidthRequest="64" />
+                <Image Source="card_back.png" HeightRequest="64" WidthRequest="64" />
+                <Image Source="card_back.png" HeightRequest="64" WidthRequest="64" />
+                <Image Source="card_back.png" HeightRequest="64" WidthRequest="64" />
+                <Image Source="card_back.png" HeightRequest="64" WidthRequest="64" />
+            </HorizontalStackLayout>
+
+            <Button Text="ГРАТИ" ImageSource="icon_play.png" ContentLayout="Left,16"
+                    Style="{StaticResource GreenButton}" FontSize="16" HeightRequest="64" Clicked="OnPlayClicked" />
+            <Button Text="ПРАВИЛА" ImageSource="icon_help.png" ContentLayout="Left,16"
+                    Style="{StaticResource PixelButton}" FontSize="14" HeightRequest="58" Clicked="OnRulesClicked" />
+            <Button Text="ВИХІД" ImageSource="icon_exit.png" ContentLayout="Left,16"
+                    Style="{StaticResource PixelButton}" BackgroundColor="{StaticResource Red}" FontSize="14" HeightRequest="58" Clicked="OnExitClicked" />
+
+            <Label Text="416-ПР  ·  .NET MAUI" FontSize="9" TextColor="{StaticResource Paper}" HorizontalOptions="Center" Margin="0,10,0,0">
+                <Label.Shadow><Shadow Brush="{StaticResource Ink}" Offset="2,2" Radius="0" Opacity="1" /></Label.Shadow>
+            </Label>
+        </VerticalStackLayout>
+
+        <controls:PixelDialog x:Name="Dialog" />
+    </Grid>
+</ContentPage>

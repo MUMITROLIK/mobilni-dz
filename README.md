@@ -9,5 +9,6 @@
 |---|---|
 | [01-WpfMovieSearch](01-WpfMovieSearch) | WPF-застосунок для пошуку фільмів (TMDB API) |
 | [02-MauiClicker](02-MauiClicker) | Клікер на .NET MAUI: магазин, збереження у файл, картинки на кнопках |
+| [03-MauiMemory](03-MauiMemory) | Memory на .NET MAUI: меню, вибір рівня, гра на трьох рівнях складності |
 
 Папки `bin/` та `obj/` у репозиторій не потрапляють (`.gitignore` для .NET).

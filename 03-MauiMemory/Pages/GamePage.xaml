@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MemoryGame.Controls"
+             x:Class="MemoryGame.Pages.GamePage"
+             Title="Гра"
+             BackgroundColor="#1A1C2C">
+
+    <Grid>
+        <Image Source="bg_night.png" Aspect="AspectFill" />
+
+        <ScrollView>
+            <VerticalStackLayout Padding="16,18" Spacing="14" HorizontalOptions="Center">
+
+                <!-- Верхня панель: назад у меню, назва рівня, почати знову -->
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                    <Button Grid.Column="0" Text="МЕНЮ" Style="{StaticResource PixelButton}" FontSize="10" Padding="12,10" Clicked="OnMenuClicked" />
+                    <Label Grid.Column="1" x:Name="LevelLabel" Style="{StaticResource TitleLabel}" FontSize="18" VerticalOptions="Center" />
+                    <Button Grid.Column="2" Text="ЗНОВУ" Style="{StaticResource PixelButton}" FontSize="10" Padding="12,10" Clicked="OnRestartClicked" />
+                </Grid>
+
+                <!-- Табло -->
+                <Border BackgroundColor="#CC1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,10">
+                    <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,*,*">
+                        <Label Grid.Column="0" x:Name="MovesLabel" Text="ХОДИ: 0" HorizontalOptions="Center" />
+                        <Label Grid.Column="1" x:Name="PairsLabel" Text="ПАРИ: 0" HorizontalOptions="Center" TextColor="{StaticResource Gold}" />
+                        <Label Grid.Column="2" x:Name="TimeLabel" Text="ЧАС: 0:00" HorizontalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Поле з картками будується в коді залежно від рівня -->
+                <Border BackgroundColor="#991A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="10" HorizontalOptions="Center">
+                    <Border.StrokeShape><Rectangle /></Border.StrokeShape>
+                    <Grid x:Name="BoardGrid" ColumnSpacing="6" RowSpacing="6" />
+                </Border>
+
+                <Label x:Name="RecordLabel" HorizontalOptions="Center" FontSize="10" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Власне вікно перемоги поверх усього -->
+        <controls:PixelDialog x:Name="Dialog" />
+    </Grid>
+</ContentPage>
