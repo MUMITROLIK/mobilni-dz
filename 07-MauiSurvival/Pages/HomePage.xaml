@@ -18,7 +18,7 @@
                 <!-- Герой і його інструменти -->
                 <Border BackgroundColor="#CC1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="16,14">
                     <Border.StrokeShape><Rectangle /></Border.StrokeShape>
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="18">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="18">
                         <Grid WidthRequest="96" HeightRequest="96" VerticalOptions="Center">
                             <Image x:Name="HeroImage" Source="hero.png" />
                             <!-- Шар для літаючих написів над героєм (хропіння «Z») -->
@@ -29,6 +29,8 @@
                             <Label x:Name="StatusLabel" Text="" FontSize="9" LineHeight="1.7" LineBreakMode="WordWrap" />
                             <HorizontalStackLayout x:Name="ToolsRow" Spacing="8" />
                         </VerticalStackLayout>
+                        <!-- Супутник у таборі (спрайт Kenney, CC0) -->
+                        <Image Grid.Column="2" x:Name="WizardImage" Source="k_wizard.png" WidthRequest="96" HeightRequest="96" VerticalOptions="Center" />
                     </Grid>
                 </Border>
 

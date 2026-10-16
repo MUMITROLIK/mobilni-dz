@@ -37,8 +37,8 @@ public partial class HomePage : ContentPage
     {
         while (!token.IsCancellationRequested)
         {
-            await HeroImage.TranslateTo(0, -5, 650, Easing.SinInOut);
-            await HeroImage.TranslateTo(0, 0, 650, Easing.SinInOut);
+            await Task.WhenAll(HeroImage.TranslateTo(0, -5, 650, Easing.SinInOut), WizardImage.TranslateTo(0, -4, 650, Easing.SinInOut));
+            await Task.WhenAll(HeroImage.TranslateTo(0, 0, 650, Easing.SinInOut), WizardImage.TranslateTo(0, 0, 650, Easing.SinInOut));
         }
     }
 

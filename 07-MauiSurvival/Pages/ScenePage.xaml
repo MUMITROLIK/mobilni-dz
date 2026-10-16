@@ -60,7 +60,10 @@
                         <Border.StrokeShape><Rectangle /></Border.StrokeShape>
                         <VerticalStackLayout Spacing="9" HorizontalOptions="Center">
                             <Label x:Name="ResultTitle" Text="ГОТОВО!" Style="{StaticResource TitleLabel}" FontSize="20" />
-                            <Image x:Name="ResultIcon" WidthRequest="96" HeightRequest="96" HorizontalOptions="Center" />
+                            <Grid HorizontalOptions="Center" WidthRequest="140" HeightRequest="150">
+                                <Image x:Name="ResultChest" Source="k_chest_closed.png" WidthRequest="112" HeightRequest="112" VerticalOptions="End" />
+                                <Image x:Name="ResultIcon" WidthRequest="64" HeightRequest="64" VerticalOptions="Start" Opacity="0" />
+                            </Grid>
                             <Label x:Name="ResultAmount" FontSize="20" TextColor="{StaticResource Gold}" HorizontalOptions="Center" />
                             <Label x:Name="ResultInfo" FontSize="10" TextColor="#94B0C2" HorizontalOptions="Center" HorizontalTextAlignment="Center" LineHeight="1.7" />
                         </VerticalStackLayout>

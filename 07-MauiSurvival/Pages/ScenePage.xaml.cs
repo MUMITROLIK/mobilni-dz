@@ -21,7 +21,7 @@ public partial class ScenePage : ContentPage
 
     // ----- Вигляд сцени залежить від ресурсу (що б'ємо) і від локації (небо, земля, атмосфера) -----
     private sealed record TargetStyle(string Image, string? Tool, string[] Chips, string Verb, bool Falls);
-    private sealed record PlaceStyle(string[] Sky, string Ground, string GroundDark, string? SkyDecor, string Ambient);
+    private sealed record PlaceStyle(string[] Sky, string Ground, string GroundDark, string? SkyDecor, string Ambient, string[]? Tiles, string Critter, string CritterImage);
 
     private static readonly Dictionary<string, TargetStyle> Targets = new()
     {
@@ -38,10 +38,10 @@ public partial class ScenePage : ContentPage
 
     private static readonly Dictionary<string, PlaceStyle> Places = new()
     {
-        ["forest"] = new(new[] { "#1A2A3A", "#1F3A44", "#24505A", "#2D6A63" }, "#2F8F57", "#257A4A", "icon_sleep.png", "fireflies"),
-        ["desert"] = new(new[] { "#7A3B4F", "#A24B4B", "#D06A4A", "#EFA05A" }, "#E0B36A", "#C99A52", "loc_desert.png", "dust"),
-        ["tundra"] = new(new[] { "#2F4A73", "#4B6F9C", "#7EA0C4", "#B8D4E8" }, "#E8F1F7", "#C7D8E6", "loc_tundra.png", "snow"),
-        ["cave"] = new(new[] { "#0D0D16", "#14131F", "#1C1B2A", "#262538" }, "#3A3A4E", "#2C2C3C", null, "drips"),
+        ["forest"] = new(new[] { "#1A2A3A", "#1F3A44", "#24505A", "#2D6A63" }, "#2F8F57", "#257A4A", "icon_sleep.png", "fireflies", null, "slime", "k_slime.png"),
+        ["desert"] = new(new[] { "#7A3B4F", "#A24B4B", "#D06A4A", "#EFA05A" }, "#E0B36A", "#C99A52", "loc_desert.png", "dust", new[] { "k_floor0.png", "k_floor1.png", "k_floor2.png", "k_floor3.png" }, "spider", "k_spider.png"),
+        ["tundra"] = new(new[] { "#2F4A73", "#4B6F9C", "#7EA0C4", "#B8D4E8" }, "#E8F1F7", "#C7D8E6", "loc_tundra.png", "snow", null, "ghost", "k_ghost.png"),
+        ["cave"] = new(new[] { "#0D0D16", "#14131F", "#1C1B2A", "#262538" }, "#3A3A4E", "#2C2C3C", null, "drips", new[] { "k_brick0.png", "k_brick1.png", "k_brick2.png" }, "bat", "k_bat.png"),
     };
 
     private bool IsSleepScene => Mode == "sleep";
@@ -60,6 +60,7 @@ public partial class ScenePage : ContentPage
     {
         InitializeComponent();
         ProgressHolder.Content = _progress;
+        Stage.SizeChanged += (_, _) => { if (_style.Tiles is not null && Stage.Width > 0) { GroundTexture.Clear(); BuildTiles(); } };
     }
 
     // ================= Життєвий цикл =================
@@ -118,6 +119,7 @@ public partial class ScenePage : ContentPage
         ResetVisuals();
 
         var token = _loops.Token;
+        if (!IsSleepScene) _ = CritterAsync(token);
         _ = AmbientAsync(token);
         _ = IsSleepScene ? SleepLoopAsync(token) : WorkLoopAsync(token);
         OnChanged();
@@ -136,8 +138,9 @@ public partial class ScenePage : ContentPage
         SkyDecor.Source = _style.SkyDecor;
         SkyDecor.IsVisible = _style.SkyDecor is not null;
 
-        // Текстура землі: розкидані темніші «пікселі»
+        // Текстура землі: або плитки Kenney (пустеля, печера), або розкидані темніші «пікселі»
         GroundTexture.Clear();
+        if (_style.Tiles is not null) { BuildTiles(); goto textureDone; }
         var rnd = new Random(_place.Id.GetHashCode());
         for (var i = 0; i < 46; i++)
         {
@@ -148,6 +151,7 @@ public partial class ScenePage : ContentPage
             GroundTexture.Add(tuft);
         }
 
+        textureDone:
         if (IsSleepScene)
         {
             TargetImage.Source = "logo_fire.png";
@@ -264,12 +268,32 @@ public partial class ScenePage : ContentPage
         }
 
         // Панель результату виринає з пружинним ефектом
+        ResultChest.IsVisible = !IsSleepScene;
+        ResultChest.Source = "k_chest_closed.png";
+        ResultChest.Rotation = 0;
+        ResultIcon.Opacity = IsSleepScene ? 1 : 0;
+        ResultIcon.TranslationY = 0;
+        ResultIcon.VerticalOptions = IsSleepScene ? LayoutOptions.Center : LayoutOptions.Start;
         ResultPanel.Scale = 0.6;
         ResultPanel.Opacity = 0;
         ResultPanel.IsVisible = true;
         _ = ResultPanel.FadeTo(1, 160);
         await ResultPanel.ScaleTo(1.08, 170, Easing.CubicOut);
         await ResultPanel.ScaleTo(1, 130, Easing.CubicIn);
+
+        // Сундук трясеться, відкривається, і з нього вистрибує нагорода
+        if (!IsSleepScene)
+        {
+            for (var i = 0; i < 3; i++) { await ResultChest.RotateTo(-7, 60); await ResultChest.RotateTo(7, 60); }
+            await ResultChest.RotateTo(0, 60);
+            ResultChest.Source = "k_chest_open.png";
+            ResultIcon.TranslationY = 80;   // стартує всередині сундука
+            ResultIcon.Scale = 0.4;
+            _ = ResultIcon.FadeTo(1, 140);
+            _ = ResultIcon.ScaleTo(1.25, 260, Easing.CubicOut);
+            await ResultIcon.TranslateTo(0, -6, 300, Easing.CubicOut);
+            await ResultIcon.ScaleTo(1, 160, Easing.CubicIn);
+        }
 
         WorkButtons.IsVisible = false;
         DoneButtons.IsVisible = true;
@@ -373,6 +397,71 @@ public partial class ScenePage : ContentPage
         await Fx.FloatTextAsync(FxLayer, "Z", Color.FromArgb("#73EFF7"), x, y, 70, 1500);
     }
 
+
+    // ================= Плитки землі й мешканці місця (спрайти Kenney, CC0) =================
+
+    /// <summary>Вимощує землю плитками 64x64 (плитки вибираються випадково з набору локації).</summary>
+    private void BuildTiles()
+    {
+        if (_style.Tiles is null || Stage.Width <= 0) return;
+        const double size = 64;
+        var rnd = new Random(_place.Id.GetHashCode());
+        var groundHeight = Stage.Height * 0.38;
+        for (var row = 0; row * size < groundHeight; row++)
+        {
+            for (var col = 0; col * size < Stage.Width; col++)
+            {
+                var tile = new Image { Source = _style.Tiles[rnd.Next(_style.Tiles.Length)], WidthRequest = size, HeightRequest = size, Aspect = Aspect.Fill, InputTransparent = true };
+                AbsoluteLayout.SetLayoutBounds(tile, new Rect(col * size, row * size, size, size));
+                GroundTexture.Add(tile);
+            }
+        }
+    }
+
+    /// <summary>Мешканець локації (слиз, павук, привид, кажан) бродить і літає на задньому плані.</summary>
+    private async Task CritterAsync(CancellationToken token)
+    {
+        var critter = new Image { Source = _style.CritterImage, WidthRequest = 72, HeightRequest = 72, InputTransparent = true, Opacity = _style.Critter == "ghost" ? 0.8 : 1 };
+        AbsoluteLayout.SetLayoutBounds(critter, new Rect(0, 0, 72, 72));
+        FxLayer.Add(critter);
+
+        await Task.Delay(150);
+        var rnd = new Random();
+        var w = Stage.Width > 0 ? Stage.Width : 800;
+        var h = Stage.Height > 0 ? Stage.Height : 400;
+        var baseY = _style.Critter is "ghost" ? h * 0.20 : _style.Critter is "bat" ? h * 0.24 : h * 0.74;
+        var x = w * 0.52;
+        critter.TranslationX = x;
+        critter.TranslationY = baseY;
+
+        while (!token.IsCancellationRequested)
+        {
+            var nx = Math.Clamp(x + rnd.Next(-230, 230), 30, w - 110);
+            critter.ScaleX = nx < x ? -1 : 1;
+
+            switch (_style.Critter)
+            {
+                case "slime":   // стрибками по землі
+                    await critter.TranslateTo((x + nx) / 2, baseY - 36, 240, Easing.CubicOut);
+                    await critter.TranslateTo(nx, baseY, 240, Easing.CubicIn);
+                    await Task.Delay(rnd.Next(500, 1300), token).ContinueWith(_ => { });
+                    break;
+                case "spider":  // повзе
+                    await critter.TranslateTo(nx, baseY + rnd.Next(-8, 8), (uint)(Math.Abs(nx - x) * 4 + 300), Easing.Linear);
+                    await Task.Delay(rnd.Next(400, 1100), token).ContinueWith(_ => { });
+                    break;
+                case "ghost":   // повільно пливе
+                    await critter.TranslateTo(nx, baseY + rnd.Next(-24, 24), 2800, Easing.SinInOut);
+                    break;
+                default:        // кажан: ширяє і змахує крилами (розтягується по висоті)
+                    _ = critter.ScaleYTo(0.8, 160).ContinueWith(_ => { });
+                    await critter.TranslateTo(nx, baseY + rnd.Next(-20, 50), 1600, Easing.SinInOut);
+                    await critter.ScaleYTo(1, 120);
+                    break;
+            }
+            x = nx;
+        }
+    }
     // ================= Атмосфера: світлячки, пил, сніг, краплі =================
 
     private async Task AmbientAsync(CancellationToken token)

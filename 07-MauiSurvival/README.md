@@ -7,6 +7,8 @@
 ![Сцена: рубаємо дерево](docs/screenshot-scene.png)
 ![Результат](docs/screenshot-result.png)
 ![Сон біля вогнища](docs/screenshot-sleep.png)
+![Пустеля](docs/screenshot-desert.png)
+![Печера](docs/screenshot-cave.png)
 
 ## Що зроблено (за завданням з 15.10)
 
@@ -48,3 +50,8 @@ dotnet run -f net8.0-windows10.0.19041.0
 5. **Навігація.** Екрани зареєстровані в `AppShell.xaml.cs` через `Routing.RegisterRoute`; параметри (`place`, `action`) передаються в рядку маршруту і потрапляють у сторінку через `[QueryProperty]`.
 6. **Анімації.** Смуги плавно «доганяють» значення таймером ~60 разів на секунду. Уламки летять по параболі (формула у `Animation`). Зірки і хмаринки фону на Windows віддані композитору WinUI (відеопідсистемі), тому не навантажують процесор.
 7. **Збереження.** `SaveData` серіалізується в JSON (`survival-save.json`) у приватній папці застосунку.
+
+## Ресурси і ліцензії
+
+- Частину спрайтів (сундук, чарівник, слиз, павук, привид, кажан, плитки підлоги) узято з пакета **Tiny Dungeon** від [Kenney](https://kenney.nl/assets/tiny-dungeon), ліцензія **CC0** (текст у `licenses/Kenney-TinyDungeon-CC0.txt`). Решта малюнків намальована скриптом `tools/GenerateSprites.ps1`.
+- Шрифт [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P), ліцензія SIL OFL (`licenses/PressStart2P-OFL.txt`).
