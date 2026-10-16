@@ -21,8 +21,13 @@
             <Setter Property="BorderColor" Value="{StaticResource Ink}" />
             <Setter Property="BorderWidth" Value="4" />
             <Setter Property="CornerRadius" Value="0" />
-            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontFamily" Value="PixelFont" />
+            <Setter Property="FontSize" Value="11" />
             <Setter Property="Padding" Value="12,10" />
+        </Style>
+        <!-- Піксельний шрифт для всіх написів -->
+        <Style TargetType="Label">
+            <Setter Property="FontFamily" Value="PixelFont" />
         </Style>
     </ContentPage.Resources>
 
@@ -33,7 +38,7 @@
         <ScrollView x:Name="MainScroll">
             <VerticalStackLayout Padding="20,24" Spacing="16" MaximumWidthRequest="520">
 
-                <Label Text="КЛІКЕР" FontSize="40" FontAttributes="Bold" TextColor="{StaticResource Gold}"
+                <Label Text="КЛІКЕР" FontSize="30" TextColor="{StaticResource Gold}"
                        HorizontalOptions="Center">
                     <Label.Shadow>
                         <Shadow Brush="{StaticResource Ink}" Offset="4,4" Radius="0" Opacity="1" />
@@ -44,10 +49,10 @@
                 <Border BackgroundColor="#CC1A1C2C" Stroke="{StaticResource Ink}" StrokeThickness="4" Padding="14,10">
                     <Border.StrokeShape><Rectangle /></Border.StrokeShape>
                     <VerticalStackLayout Spacing="4">
-                        <Label x:Name="CoinsLabel" Text="Монети: 0" FontSize="30" FontAttributes="Bold"
+                        <Label x:Name="CoinsLabel" Text="Монети: 0" FontSize="20"
                                TextColor="{StaticResource Gold}" HorizontalOptions="Center" />
-                        <Label x:Name="ClickPowerLabel" Text="За клік: 1" FontSize="16" TextColor="{StaticResource Paper}" HorizontalOptions="Center" />
-                        <Label x:Name="PerSecondLabel" Text="За секунду: 0" FontSize="16" TextColor="{StaticResource Paper}" HorizontalOptions="Center" />
+                        <Label x:Name="ClickPowerLabel" Text="За клік: 1" FontSize="11" TextColor="{StaticResource Paper}" HorizontalOptions="Center" />
+                        <Label x:Name="PerSecondLabel" Text="За секунду: 0" FontSize="11" TextColor="{StaticResource Paper}" HorizontalOptions="Center" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -55,7 +60,7 @@
                 <ImageButton x:Name="CoinButton" Source="coin.png" HeightRequest="160" WidthRequest="160"
                              BackgroundColor="Transparent" HorizontalOptions="Center" Clicked="OnClickButtonClicked" />
 
-                <Label Text="МАГАЗИН" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Paper}" HorizontalOptions="Center">
+                <Label Text="МАГАЗИН" FontSize="16" TextColor="{StaticResource Paper}" HorizontalOptions="Center">
                     <Label.Shadow>
                         <Shadow Brush="{StaticResource Ink}" Offset="3,3" Radius="0" Opacity="1" />
                     </Label.Shadow>
@@ -70,7 +75,7 @@
                                     ContentLayout="Left,14"
                                     Style="{StaticResource PixelButton}"
                                     HeightRequest="78"
-                                    FontSize="15"
+                                    FontSize="11"
                                     Clicked="OnBuyClicked" />
                         </DataTemplate>
                     </BindableLayout.ItemTemplate>
@@ -85,7 +90,7 @@
                             Style="{StaticResource PixelButton}" BackgroundColor="#B13E53" Clicked="OnResetClicked" />
                 </Grid>
 
-                <Label x:Name="StatusLabel" Text="" TextColor="{StaticResource Paper}" HorizontalOptions="Center" />
+                <Label x:Name="StatusLabel" Text="" FontSize="10" TextColor="{StaticResource Paper}" HorizontalOptions="Center" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

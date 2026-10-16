@@ -13,6 +13,8 @@ public static class MauiProgram
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+				// Піксельний шрифт (SIL OFL, ліцензія в папці licenses)
+				fonts.AddFont("PressStart2P-Regular.ttf", "PixelFont");
 			});
 
 #if DEBUG
